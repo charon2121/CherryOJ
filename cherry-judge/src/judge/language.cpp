@@ -20,7 +20,7 @@ const LanguageInfo* LanguageManager::get_language_info(Language lang) {
     return (it != languages.end()) ? &(it->second) : nullptr;
 }
 
-// 获取所有支持的语言
+// 获取支持的语言
 std::vector<Language> LanguageManager::get_supported_languages() {
     std::vector<Language> supported;
     for (const auto& pair : languages) {
