@@ -39,7 +39,7 @@ enum class Language {
     BASIC = 30
 };
 
-// **扩展的语言类型**
+// 扩展的语言类型
 enum class LanguageType {
     COMPILED,    // 需要编译（C, C++, Java, Rust, Scala）
     INTERPRETED, // 解释执行（Python, JavaScript, R, MATLAB）

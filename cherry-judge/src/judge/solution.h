@@ -10,9 +10,11 @@
 struct Solution {
     std::string solution_id;  // 提交唯一标识
     std::string source_code;  // 代码内容
+    int problem_id;           // 题目ID
     Language language;        // 编程语言
-    Solution(std::string id, std::string code, Language lang)
-        : solution_id(id), source_code(code), language(lang) {}
+    std::string custom_input; // 自定义数据
+    Solution(const std::string& sol_id, const std::string& src_code, int prob_id, Language lang, const std::string& cust_input)
+    : solution_id(sol_id), source_code(src_code), problem_id(prob_id), language(lang), custom_input(cust_input){}
 };
 
 #endif // SOLUTION_H
