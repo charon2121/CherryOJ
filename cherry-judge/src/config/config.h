@@ -3,17 +3,26 @@
 
 #include <string>
 
-struct Config {
-    // 沙箱配置
-    std::string OJ_HOME;  // OJ 的家目录
-    std::string DATA_DIR;  // 题目数据目录
-    std::string SANDBOX_DIR;  // 沙箱运行目录
-
-    Config() {
-        OJ_HOME = "/home/cherry/workspace";
-        DATA_DIR = OJ_HOME + "/data";
-        SANDBOX_DIR = OJ_HOME + "/sandbox";
-    }
-};
+namespace Config {
+    /**
+     * 沙箱内部结构
+     * 
+     * /sandbox
+     *  /lib
+     *  /usr
+     *    /lib
+     *    /lib64
+     *    /bin
+     *    /include
+     */
+    const std::string OJ_HOME = "/home/ubuntu/cherry/workspace";
+    const std::string DATA_DIR = OJ_HOME + "/data";
+    const std::string SANDBOX_DIR = OJ_HOME + "/sandbox";
+    const std::string LIB_DIR = SANDBOX_DIR + "/lib";
+    const std::string USR_DIR = SANDBOX_DIR + "/usr";
+    const std::string USR_LIB_DIR = SANDBOX_DIR + "/usr/lib";
+    const std::string USR_LIB64_DIR = SANDBOX_DIR + "/usr/lib64";
+    const std::string USR_INCLUDE_DIR = SANDBOX_DIR + "/usr/include";
+}
 
 #endif // CONFIG_H

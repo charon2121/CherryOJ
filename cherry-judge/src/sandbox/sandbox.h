@@ -35,7 +35,7 @@ public:
     /**
      * 沙箱初始化，准备运行时环境
      */
-    void initSandbox(const Task& task);
+    void initSandbox();
 
     /**
      * 设置沙箱的资源限制

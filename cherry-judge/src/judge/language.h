@@ -16,27 +16,28 @@ enum class Language {
     SWIFT = 7,
     KOTLIN = 8,
     OBJECTIVE_C = 9,
-    CANGJIE = 10,   // 新语言，华为仓颉
-    PYTHON_2 = 11,  // 解释型语言（INTERPRETED）
-    PYTHON_3 = 12,
-    RUBY = 13,
-    JAVASCRIPT = 14,
-    TYPESCRIPT = 15,
-    LUA = 16,
-    PHP = 17,
-    DART = 18,
-    MATLAB = 19,
-    R = 20,
-    JULIA = 21,
-    SCALA = 22,
-    SQL = 23,      // SQL 查询语言
-    MONGODB = 24,  // NoSQL 查询语言
-    SHELL = 25,    // 脚本语言（也算 INTERPRETED）
-    PERL = 26,
-    SCHEME = 27,
-    COBOL = 28,
-    PASCAL = 29,
-    BASIC = 30
+    CANGJIE = 10,   // 华为仓颉
+    MOONBIT = 11,   // 华科月兔
+    PYTHON_2 = 12,  // 解释型语言（INTERPRETED）
+    PYTHON_3 = 13,
+    RUBY = 14,
+    JAVASCRIPT = 15,
+    TYPESCRIPT = 16,
+    LUA = 17,
+    PHP = 18,
+    DART = 19,
+    MATLAB = 20,
+    R = 21,
+    JULIA = 22,
+    SCALA = 23,
+    SQL = 24,      // SQL 查询语言
+    MONGODB = 25,  // NoSQL 查询语言
+    SHELL = 26,    // 脚本语言（也算 INTERPRETED）
+    PERL = 27,
+    SCHEME = 28,
+    COBOL = 29,
+    PASCAL = 30,
+    BASIC = 31
 };
 
 // 扩展的语言类型
@@ -44,7 +45,6 @@ enum class LanguageType {
     COMPILED,    // 需要编译（C, C++, Java, Rust, Scala）
     INTERPRETED, // 解释执行（Python, JavaScript, R, MATLAB）
     SQL,         // 结构化查询语言（MySQL, PostgreSQL, SQLite）
-    NOSQL        // NoSQL 查询语言（MongoDB）
 };
 
 // 语言版本信息
