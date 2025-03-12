@@ -44,10 +44,6 @@ private:
     std::string usr_lib64_dir;
     std::string usr_bin_dir;
     std::string usr_include_dir;
-
-    bool setup_mount_namespace();
-    bool setup_overlayfs();
-    bool setup_ipc();
 };
 
 #endif // SANDBOX_H

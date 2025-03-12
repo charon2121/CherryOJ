@@ -1,4 +1,3 @@
-#include "sandbox.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -7,6 +6,9 @@
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include "sandbox.h"
+
+
 
 // 构造函数
 Sandbox::Sandbox(const std::string& root_dir) : root_dir(root_dir) {
@@ -50,6 +52,7 @@ Sandbox::~Sandbox() {
     umount(usr_lib64_dir.c_str());
     umount(usr_bin_dir.c_str());
     umount(usr_include_dir.c_str());
+    umount(merged_dir.c_str());
 
     // 删除文件目录
     rmdir(lib_dir.c_str());
@@ -132,6 +135,12 @@ bool Sandbox::init() {
     }
 
     // 挂载 overlayfs
+    std::string options = "lowerdir=" + lower_dir + ",upperdir=" + upper_dir + ",workdir=" + work_dir;
+
+    if (mount("overlay", merged_dir.c_str(), "overlay", 0, options.c_str()) != 0) {
+        perror("mount overlay failed");
+        return false;
+    }
 
     return true;
 }
