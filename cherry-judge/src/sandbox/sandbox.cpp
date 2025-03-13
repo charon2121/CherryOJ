@@ -70,19 +70,11 @@ Sandbox::~Sandbox() {
 
 // 初始化代码沙箱
 bool Sandbox::init() {
-    // 创建新的挂载命令空间
-    if (unshare(CLONE_NEWNS) != 0) {
-        perror("unshare(CLONE_NEWNS) failed");
-        return false;
-    }
 
-    // 表示将挂载点设置为private模式，后续挂载或卸载操作不再对外传播。
-    if (mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL) != 0) {
-        perror("mount MS_REC|MS_PRIVATE failed");
-        return false;
-    }
-
+    // 设置命名空间
+    set_namespace();
     // 挂载宿主机文件系统到沙箱内
+    mount_host_fs();
     if (mount("/lib", lib_dir.c_str(), NULL, MS_BIND, NULL) != 0) {
         perror("mount /lib failed");
         return false;
@@ -143,4 +135,22 @@ bool Sandbox::init() {
     }
 
     return true;
+}
+
+// 设置 namespace
+void Sandbox::set_namespace() {
+    // 创建新的挂载命令空间
+    if (unshare(CLONE_NEWNS) != 0) {
+        perror("unshare(CLONE_NEWNS) failed");
+        exit(1);
+    }
+}
+
+// 挂载宿主机的文件系统
+void Sandbox::mount_host_fs() {
+    // 表示将挂载点设置为private模式，后续挂载或卸载操作不再对外传播。
+    if (mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL) != 0) {
+        perror("mount MS_REC|MS_PRIVATE failed");
+        exit(1);
+    }
 }

@@ -11,9 +11,6 @@ public:
     // 初始化沙箱内部文件系统结构
     bool init();
 
-    // 启动代码沙箱
-    void start();
-
 private:
     // 沙箱根目录
     std::string root_dir;
@@ -44,6 +41,12 @@ private:
     std::string usr_lib64_dir;
     std::string usr_bin_dir;
     std::string usr_include_dir;
+
+    // 设置 namespace
+    void set_namespace();
+
+    // 挂载宿主机的文件系统
+    void mount_host_fs();
 };
 
 #endif // SANDBOX_H
