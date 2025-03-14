@@ -26,21 +26,21 @@ public:
      * @param host_source_path  宿主机上的路径（源路径）
      * @return 对应的沙箱内映射路径（挂载点）
      */
-    const std::string &get_mapped_sandbox_path(const std::string &host_source_path) const;
+    std::string get_mapped_sandbox_path(const std::string &host_source_path) const;
 
     /**
      * 获取所有已映射的宿主机路径
      *
      * @return 宿主机路径列表（已映射到沙箱的路径）
      */
-    const std::vector<std::string> &get_all_host_paths() const;
+    std::vector<std::string> get_all_host_paths() const;
 
     /**
      * 获取所有已映射到沙箱的路径
      *
      * @return 沙箱路径列表（已映射的挂载点）
      */
-    const std::vector<std::string> &get_all_sandbox_paths() const;
+    std::vector<std::string> get_all_sandbox_paths() const;
 
     /**
      * 增加 overlayfs 挂载点路径
@@ -54,7 +54,7 @@ public:
      *
      * @return 挂载点路径列表
      */
-    const std::vector<std::string> &get_all_overlayfs_paths() const;
+    std::vector<std::string> get_all_overlayfs_paths() const;
 
     /**
      * 获取指定的 overlayfs 挂载点路径
@@ -62,7 +62,7 @@ public:
      * @param overlayfs_path 挂载点路径
      * @return 挂载点路径
      */
-    const std::string &get_overlayfs_path(const std::string &overlayfs_type) const;
+    std::string get_overlayfs_path(const std::string &overlayfs_type) const;
 
 private:
     // overlayfs 挂载点路径

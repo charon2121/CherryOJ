@@ -18,13 +18,13 @@ enable_testing()
 
 # 添加可执行文件，并包含 src/result/result.cpp
 add_executable(judge src/main.cpp src/judge/result.cpp src/judge/language.cpp)
-add_executable(sandbox src/sandbox/sandbox_helper.cpp src/sandbox/sandbox.cpp)
+add_executable(sandbox src/sandbox/sandbox_helper.cpp src/sandbox/sandbox.cpp src/sandbox/sandbox_fs.cpp src/common/order_map.cpp)
 
 # 指定头文件目录
 target_include_directories(judge PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(sandbox PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # 添加测试
-add_executable(test_sandbox tests/test_sandbox.cpp src/sandbox/sandbox.cpp)
+add_executable(test_sandbox tests/test_sandbox.cpp src/sandbox/sandbox.cpp src/sandbox/sandbox_fs.cpp src/common/order_map.cpp)
 target_link_libraries(test_sandbox PRIVATE gtest_main)
 add_test(NAME test_sandbox COMMAND test_sandbox)

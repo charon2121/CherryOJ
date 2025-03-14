@@ -38,7 +38,7 @@ Sandbox::~Sandbox()
 bool Sandbox::init()
 {
     // 设置命名空间
-    set_namespace();
+    // set_namespace();
     // 挂载宿主机文件系统到沙箱内
     mount_host_fs();
     // 挂载 overlayfs
@@ -61,11 +61,11 @@ void Sandbox::set_namespace()
 void Sandbox::mount_host_fs()
 {
     // 表示将挂载点设置为private模式，后续挂载或卸载操作不再对外传播。
-    if (mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL) != 0)
-    {
-        perror("mount MS_REC|MS_PRIVATE failed");
-        exit(1);
-    }
+    // if (mount("none", "/", NULL, MS_REC | MS_PRIVATE, NULL) != 0)
+    // {
+    //     perror("mount MS_REC|MS_PRIVATE failed");
+    //     exit(1);
+    // }
 
     // 挂载宿主机路径到沙箱内
     const std::vector<std::string> &host_paths = sandbox_fs.get_all_host_paths();

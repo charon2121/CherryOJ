@@ -17,9 +17,9 @@ public:
     // 获取键值对
     const V& get(const K& key) const;
     // 获取所有键
-    const std::vector<K>& get_keys() const;
+    std::vector<K> get_keys() const;
     // 获取所有值
-    const std::vector<V>& get_values() const;
+    std::vector<V> get_values() const;
 private:
     std::unordered_map<K, V> map;
     std::vector<K> keys;

@@ -24,15 +24,19 @@ const V& OrderMap<K, V>::get(const K& key) const {
 }
 
 template <typename K, typename V>
-const std::vector<K>& OrderMap<K, V>::get_keys() const {
+std::vector<K> OrderMap<K, V>::get_keys() const {
     return keys;
 }
 
 template <typename K, typename V>
-const std::vector<V>& OrderMap<K, V>::get_values() const {
+std::vector<V> OrderMap<K, V>::get_values() const {
     std::vector<V> values;
     for (const auto& key : keys) {
         values.push_back(map.at(key));
     }
     return values;
 }
+
+// 显式实例化 OrderMap 模板
+// 如果有其他类型需要实例化，请在此添加
+template class OrderMap<std::string, std::string>;
