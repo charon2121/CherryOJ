@@ -15,6 +15,7 @@ public:
 private:
     // 沙箱根路径
     std::string root_path;
+
     // 沙箱文件系统
     SandboxFileSystem sandbox_fs;
 
@@ -23,6 +24,9 @@ private:
 
     // 挂载宿主机的文件系统
     void mount_host_fs();
+
+    // 挂载 overlayfs
+    void mount_overlayfs();
 };
 
 #endif // SANDBOX_H
