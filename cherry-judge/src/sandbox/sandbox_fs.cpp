@@ -9,6 +9,7 @@
 #include "sandbox_path.h"
 
 // 在文件开头添加显式实例化
+template class OrderMap<std::string, std::string>;
 
 void SandboxFileSystem::init_sandbox_paths() {
     add_overlayfs_path(OVERLAYFS_LOWER, root_path + OVERLAYFS_LOWER);
@@ -83,6 +84,16 @@ void SandboxFileSystem::mount_host_fs() {
         if (mount(NULL, sandbox_path.c_str(), NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL) != 0)
         {
             perror(std::string("remount " + sandbox_path + " failed").c_str());
+            exit(1);
+        }
+    }
+}
+
+void SandboxFileSystem::umount_sandbox_fs() {
+    const std::vector<std::string> &sandbox_paths = get_all_sandbox_paths();
+    for (const auto &sandbox_path : sandbox_paths) {
+        if (umount(sandbox_path.c_str()) != 0) {
+            perror(std::string("umount " + sandbox_path + " failed").c_str());
             exit(1);
         }
     }

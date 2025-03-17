@@ -1,20 +1,20 @@
 #include <iostream>
-#include "sandbox.h"
 #include <unistd.h>
+#include <sys/wait.h>
+
+#include "sandbox.h"
 #include "sandbox_fs.h"
 
 int main(int argc, char *argv[]) {
 
     SandboxFileSystem sandbox_fs("/home/ubuntu/cherry/workspace/sandbox");
 
-    int pid = fork();
-    if (pid == 0) {
-        // 子进程
-        sandbox_fs.init_sandbox_paths();
-        sandbox_fs.create_mount_paths();
-    } else {
-        // 父进程
-    }
+    sandbox_fs.init_sandbox_paths();
+    sandbox_fs.create_mount_paths();
+    sandbox_fs.mount_host_fs();
+    sandbox_fs.mount_overlayfs();
+
+    std::cout << "sandbox_fs init success" << std::endl;
 
     return 0;
 }

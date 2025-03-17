@@ -23,14 +23,25 @@ public:
     void create_mount_paths();
     
     /**
-     * 挂载宿主机的文件系统
+     * 挂载宿主机的文件系统到沙箱内部
+     * mount --bind + remount 挂载为只读
      */
     void mount_host_fs();
+
+    /**
+     * 卸载沙箱内部的挂载点
+     */
+    void umount_sandbox_fs();
 
     /**
      * 挂载 overlayfs
      */
     void mount_overlayfs();
+
+    /**
+     * 卸载 overlayfs
+     */
+    // void umount_overlayfs();
 private:
     /**
      * 映射宿主机路径到沙箱内
@@ -55,7 +66,7 @@ private:
      */
     std::vector<std::string> get_all_host_paths() const;
 
-    /**
+   /**
      * 获取所有已映射到沙箱的路径
      *
      * @return 沙箱路径列表（已映射的挂载点）
@@ -63,18 +74,18 @@ private:
     std::vector<std::string> get_all_sandbox_paths() const;
 
     /**
-     * 增加 overlayfs 挂载点路径
-     *
-     * @param overlayfs_path 挂载点路径
-     */
-    void add_overlayfs_path(const std::string &overlayfs_type, const std::string &overlayfs_path);
-
-    /**
      * 获取所有 overlayfs 挂载点路径
      *
      * @return 挂载点路径列表
      */
     std::vector<std::string> get_all_overlayfs_paths() const;
+
+    /**
+     * 增加 overlayfs 挂载点路径
+     *
+     * @param overlayfs_path 挂载点路径
+     */
+    void add_overlayfs_path(const std::string &overlayfs_type, const std::string &overlayfs_path);
 
     /**
      * 获取指定的 overlayfs 挂载点路径
