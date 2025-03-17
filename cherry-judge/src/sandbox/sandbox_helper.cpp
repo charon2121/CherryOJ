@@ -1,15 +1,20 @@
 #include <iostream>
 #include "sandbox.h"
 #include <unistd.h>
+#include "sandbox_fs.h"
 
 int main(int argc, char *argv[]) {
-    Sandbox sandbox("/home/ubuntu/cherry/workspace/sandbox");
-    std::cout << "Initializing sandbox..." << std::endl;
-    if (!sandbox.init()) {
-        std::cerr << "Failed to initialize sandbox" << std::endl;
-        return 1;
+
+    SandboxFileSystem sandbox_fs("/home/ubuntu/cherry/workspace/sandbox");
+
+    int pid = fork();
+    if (pid == 0) {
+        // 子进程
+        sandbox_fs.init_sandbox_paths();
+        sandbox_fs.create_mount_paths();
+    } else {
+        // 父进程
     }
 
-    std::cout << "Sandbox initialized successfully" << std::endl;
     return 0;
 }

@@ -1,17 +1,37 @@
+#ifndef SANDBOX_FS_H
+#define SANDBOX_FS_H
+
 #include <string>
 #include <unordered_map>
 #include "../common/order_map.h"
-
 /**
  * SandboxFileSystem 用于管理宿主机路径与沙箱路径的映射关系
  */
 class SandboxFileSystem
 {
-
 public:
-    SandboxFileSystem() = default;
+    SandboxFileSystem(std::string root_path) : root_path(root_path) {}
     ~SandboxFileSystem() = default;
+    /**
+     * 初始化挂载点
+     */
+    void init_sandbox_paths();
 
+    /**
+     * 创建挂载点
+     */
+    void create_mount_paths();
+    
+    /**
+     * 挂载宿主机的文件系统
+     */
+    void mount_host_fs();
+
+    /**
+     * 挂载 overlayfs
+     */
+    void mount_overlayfs();
+private:
     /**
      * 映射宿主机路径到沙箱内
      *
@@ -63,10 +83,21 @@ public:
      * @return 挂载点路径
      */
     std::string get_overlayfs_path(const std::string &overlayfs_type) const;
+   
+    /**
+     * 沙箱根路径
+     */
+    std::string root_path;
 
-private:
-    // overlayfs 挂载点路径
+    /**
+     * overlayfs 挂载点路径
+     */
     std::unordered_map<std::string, std::string> overlayfs_paths;
-    // 宿主机路径到沙箱路径的映射
+
+    /**
+     * 宿主机路径到沙箱路径的映射
+     */
     OrderMap<std::string, std::string> host_path_to_sandbox_path;
 };
+
+#endif // SANDBOX_FS_H
