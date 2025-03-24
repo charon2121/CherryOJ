@@ -24,7 +24,7 @@ void SandboxFileSystem::init_sandbox_paths() {
     mapping_host_path(USR_LIB, lower_dir + USR_LIB);
     mapping_host_path(USR_LIB64, lower_dir + USR_LIB64);
     mapping_host_path(USR_BIN, lower_dir + USR_BIN);
-    mapping_host_path(USR_INCLUDE, lower_dir + USR_INCLUDE);
+    mapping_host_path(USR_INCLUDE, lower_dir + USR_INCLUDE); 
 }
 
 void SandboxFileSystem::create_mount_paths() {
@@ -105,7 +105,7 @@ void SandboxFileSystem::mount_overlayfs() {
                           ",workdir=" + get_overlayfs_path(OVERLAYFS_WORK);
 
     if (mount("overlay", get_overlayfs_path(OVERLAYFS_MERGED).c_str(),
-              "overlay", 0, options.c_str()) != 0) {
+              "overlay", NULL, options.c_str()) != 0) {
         perror(std::string("mount overlay failed").c_str());
         exit(1);
     }

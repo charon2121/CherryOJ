@@ -12,7 +12,13 @@ FetchContent_Declare(
     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 )
 
+FetchContent_Declare(
+    spdlog # 日志库
+    URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.1.zip
+)
+
 FetchContent_MakeAvailable(googletest)
+FetchContent_MakeAvailable(spdlog)
 
 enable_testing()
 

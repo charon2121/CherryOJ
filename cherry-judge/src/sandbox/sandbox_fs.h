@@ -3,7 +3,119 @@
 
 #include <string>
 #include <unordered_map>
+#include <stdexcept>
 #include "../common/order_map.h"
+
+class Mount
+{
+private:
+    std::string source;  // 挂载源路径
+    std::string target;  // 挂载目标路径
+    std::string fs_type; // 挂载类型
+    unsigned long flags; // 挂载标志
+    std::string data;    // 挂载选项
+
+public:
+    Mount(MountBuilder &builder)
+    {
+        this->source = builder.source;
+        this->target = builder.target;
+        this->fs_type = builder.fs_type;
+        this->flags = builder.flags;
+        this->data = builder.data;
+    }
+
+    std::string get_source() const { return source; }
+    std::string get_target() const { return target; }
+    std::string get_fs_type() const { return fs_type; }
+    unsigned long get_flags() const { return flags; }
+    std::string get_data() const { return data; }
+};
+
+/**
+ * 挂载点构建器
+ */
+class MountBuilder
+{
+private:
+    std::string source;
+    std::string target;
+    std::string fs_type;
+    unsigned long flags;
+    std::string data;
+
+public:
+    friend class Mount;
+
+    MountBuilder &set_source(const std::string &source)
+    {
+        this->source = source;
+        return *this;
+    }
+
+    MountBuilder &set_target(const std::string &target)
+    {
+        this->target = target;
+        return *this;
+    }
+
+    MountBuilder &set_fs_type(const std::string &fs_type)
+    {
+        this->fs_type = fs_type;
+        return *this;
+    }
+
+    MountBuilder &set_flags(unsigned long flags)
+    {
+        this->flags = flags;
+        return *this;
+    }
+
+    MountBuilder &set_data(const std::string &data)
+    {
+        this->data = data;
+        return *this;
+    }
+
+    Mount build()
+    {
+        if (target.empty())
+        {
+            throw std::invalid_argument("Mount target must be set.");
+        }
+        if (fs_type.empty() && source.empty())
+        {
+            throw std::invalid_argument("At least one of fs_type or source must be set.");
+        }
+        return Mount(*this);
+    }
+};
+
+class MountDirector {
+private:
+    MountBuilder &builder;
+
+public:
+    MountDirector(MountBuilder &builder) : builder(builder) {}
+    Mount build() {
+        return builder.build();
+    }
+
+    Mount build_bind_mount() {
+        return builder
+        .set_fs_type("bind")
+        .set_flags(MS_BIND | MS_REC)
+        .build();
+    }
+
+    Mount build_bind_mount_ro() {
+        return builder
+        .set_fs_type("bind")
+        .set_flags(MS_BIND | MS_REC | MS_RDONLY)
+        .build();
+    }
+};
+
 /**
  * SandboxFileSystem 用于管理宿主机路径与沙箱路径的映射关系
  */
@@ -21,7 +133,7 @@ public:
      * 创建挂载点
      */
     void create_mount_paths();
-    
+
     /**
      * 挂载宿主机的文件系统到沙箱内部
      * mount --bind + remount 挂载为只读
@@ -66,7 +178,7 @@ private:
      */
     std::vector<std::string> get_all_host_paths() const;
 
-   /**
+    /**
      * 获取所有已映射到沙箱的路径
      *
      * @return 沙箱路径列表（已映射的挂载点）
@@ -94,7 +206,7 @@ private:
      * @return 挂载点路径
      */
     std::string get_overlayfs_path(const std::string &overlayfs_type) const;
-   
+
     /**
      * 沙箱根路径
      */
