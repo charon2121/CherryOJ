@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <stdexcept>
 #include "../common/order_map.h"
-
+#include <sys/mount.h>
 class Mount
 {
 private:
@@ -15,8 +15,11 @@ private:
     unsigned long flags; // 挂载标志
     std::string data;    // 挂载选项
 
+    void do_mount() {
+        mount(source.c_str(), target.c_str(), fs_type.c_str(), flags, data.c_str());
+    }
 public:
-    Mount(MountBuilder &builder)
+    Mount(const MountBuilder &builder)
     {
         this->source = builder.source;
         this->target = builder.target;
