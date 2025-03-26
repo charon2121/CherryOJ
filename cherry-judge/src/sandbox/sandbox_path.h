@@ -1,29 +1,36 @@
 #ifndef SANDBOX_PATH_H
 #define SANDBOX_PATH_H
 
-/**
- * overlayfs 挂载点
- */
-constexpr const char* OVERLAYFS_LOWER = "/lower";
-constexpr const char* OVERLAYFS_UPPER = "/upper";
-constexpr const char* OVERLAYFS_WORK = "/work";
-constexpr const char* OVERLAYFS_MERGED = "/merged";
+#include <string>
 
 /**
- * 宿主机文件系统在沙箱内的挂载点
+ * sandbox path type
  */
-constexpr const char* LIB = "/lib";
-constexpr const char* LIB64 = "/lib64";
-constexpr const char* BIN = "/bin";
-constexpr const char* USR = "/usr";
-constexpr const char* USR_LIB = "/usr/lib";
-constexpr const char* USR_LIB64 = "/usr/lib64";
-constexpr const char* USR_BIN = "/usr/bin";
-constexpr const char* USR_INCLUDE = "/usr/include"; 
+enum class SandboxPathType {
+    // system mount point
+    MOUNT_BIND,      // bind mount
+    MOUNT_TMPFS,     // tmpfs
+    MOUNT_PROC,      // proc
+    MOUNT_SYSFS,     // sysfs
+    MOUNT_CGROUP,    // cgroup
+    MOUNT_CGROUP2,   // cgroup2
 
-/**
- * 沙箱工作目录
- */
-constexpr const char* WORK_SPACE = "/workspace";
+    // sandbox internal custom path (not mounted)
+    SANDBOX_WORK,    // workspace
+    SANDBOX_TMP,     // tmp
+    SANDBOX_LOG,     // log
+    SANDBOX_OUTPUT,  // output
+    SANDBOX_COMPILE, // compile
+    SANDBOX_RUN      // run
+};
+
+struct SandboxPath {
+    std::string host_path;  // host path
+    std::string sandbox_path;  // sandbox path
+    SandboxPathType type;  // path type
+
+    SandboxPath(const std::string& host_path, const std::string& sandbox_path, SandboxPathType type)
+        : host_path(host_path), sandbox_path(sandbox_path), type(type) {}
+};
 
 #endif // SANDBOX_PATH_H
