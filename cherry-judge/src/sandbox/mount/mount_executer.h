@@ -28,15 +28,8 @@ private:
     void bind_remount(const Mount &m)
     {
         const char *target = m.get_target().c_str();
-        if (mount(NULL, target, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL) != 0)
-        {
-            perror("[MountExecuter]: failed to mount");
-            // if remount failed, umount the target
-            if (umount2(target, MNT_DETACH) != 0)
-            {
-                perror("[MountExecuter]: failed to umount");
-            }
-            throw std::runtime_error("mount failed: " + std::string(strerror(errno)));
+        if (mount(NULL, target, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL) != 0) {
+            throw std::runtime_error("[MountExecuter]: mount failed: " + std::string(strerror(errno)));
         }
     }
 
@@ -48,6 +41,11 @@ private:
     }
 
 public:
+    /**
+     * Apply a mount point to the sandbox
+     * 
+     * @param m The mount point to apply
+     */
     void do_mount(const Mount &m)
     {
         const char *source = m.get_source().empty() ? NULL : m.get_source().c_str();
@@ -57,8 +55,7 @@ public:
 
         if (mount(source, target, fs_type, m.get_flags(), data) != 0)
         {
-            perror("[MountExecuter]: failed to mount");
-            throw std::runtime_error("mount failed: " + std::string(strerror(errno)));
+            throw std::runtime_error("[MountExecuter]: mount failed: " + std::string(strerror(errno)));
         }
 
         if (should_remount_readonly(m)) {
@@ -66,12 +63,15 @@ public:
         }
     }
 
-    void do_umount(const Mount &m)
+    /**
+     * Remove a mount point from the sandbox
+     * 
+     * @param target The target path to remove
+     */
+    void do_umount(const std::string &target)
     {
-        if (umount2(m.get_target().c_str(), MNT_DETACH) != 0)
-        {
-            perror("[MountExecuter]: failed to umount");
-            exit(1);
+        if (umount2(target.c_str(), MNT_DETACH) != 0) {
+            throw std::runtime_error("[MountExecuter]: umount failed: " + std::string(strerror(errno)));
         }
     }
 };
