@@ -10,9 +10,16 @@ class SandboxManager {
 private:
     MountManager mount_manager;  // mount manager for mount points
     RootfsManager rootfs_manager;  // rootfs manager for file system
+    
+    // the sandbox inner paths
     std::vector<SandboxPath> sandbox_paths;
+    // the sandbox rootfs path
+    std::string rootfs_path;
+
+    Mount convert_to_mount(const SandboxPath &path);
 
 public:
+    SandboxManager() = delete;
     SandboxManager(const std::string &rootfs_path);
     void init_sandbox_paths();
     void create_mount_paths();

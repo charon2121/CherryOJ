@@ -23,7 +23,7 @@ public:
 };
 
 /**
- *                                 Bind Mount Strategy
+ * Bind Mount Strategy
  * 
  * To bind a read-only directory from the host into the sandbox, two steps are required.
  *
@@ -65,7 +65,7 @@ public:
 };
 
 /**
- *                                 Proc Mount Strategy
+ * Proc Mount Strategy
  * 
  * Mount a proc filesystem
  * 
