@@ -18,19 +18,23 @@ private:
 
     void init_strategies() {  // add strategies here
         strategies[FsType::BIND] = std::make_unique<BindMountStrategy>();
+        strategies[FsType::PROC] = std::make_unique<ProcMountStrategy>();
     }
 
 public:
     MountExecuter() {
         init_strategies();
     }
-    
+
     /**
      * Execute a mount operation
      * 
      * @param m The mount configuration
      */
     void do_mount(const Mount &m) {
+        if (strategies.find(m.get_fs_type()) == strategies.end()) {
+            throw std::invalid_argument("[MountExecuter] Unsupported filesystem type: " + m.fs_type_to_string());
+        }
         strategies[m.get_fs_type()]->execute_mount(m);
     }
 

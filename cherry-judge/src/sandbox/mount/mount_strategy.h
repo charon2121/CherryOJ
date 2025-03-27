@@ -64,4 +64,31 @@ public:
     }
 };
 
+/**
+ *                                 Proc Mount Strategy
+ * 
+ * Mount a proc filesystem
+ * 
+ * Using the `mount` command:
+ *   1. mount -t proc proc /sandbox/proc
+ * 
+ * Using the `mount` system call:
+ *   1. mount("proc", "/sandbox/proc", NULL, MS_BIND, NULL);
+ */
+class ProcMountStrategy : public MountStrategy {
+public:
+    void execute_mount(const Mount& m) override {
+        // check if the mount is a proc mount
+        if (m.get_fs_type() != FsType::PROC) {
+            throw std::invalid_argument("[ProcMountStrategy] ProcMountStrategy can only be used for proc mounts");
+        }
+
+        const char* target = m.get_target().c_str();
+
+        // mount the proc filesystem
+        if (mount("proc", target, "proc", NULL, NULL) != 0) {
+            throw std::runtime_error("[ProcMountStrategy] Failed to mount proc to " + m.get_target());
+        }
+    }
+};
 #endif

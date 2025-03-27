@@ -36,6 +36,19 @@ public:
     FsType get_fs_type() const { return fs_type; }
     unsigned long get_flags() const { return flags; }
     std::string get_data() const { return data; }
+
+    std::string fs_type_to_string() const {
+        switch (fs_type) {
+            case FsType::BIND: return "bind";
+            case FsType::TMPFS: return "tmpfs";
+            case FsType::PROC: return "proc";
+            case FsType::SYSFS: return "sysfs";
+            case FsType::CGROUP: return "cgroup";
+            case FsType::CGROUP2: return "cgroup2";
+            case FsType::OVERLAY: return "overlay";
+            case FsType::UNKNOWN: return "unknown";
+        }
+    }
 };
 
 #endif

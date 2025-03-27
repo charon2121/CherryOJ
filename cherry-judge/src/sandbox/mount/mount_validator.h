@@ -25,7 +25,7 @@ public:
             throw std::invalid_argument("[mount validator] remount requires a source path.");
         }
 
-        if (mount.get_fs_type() == "overlay") {
+        if (mount.get_fs_type() == FsType::OVERLAY) {
             if (mount.get_source() != "overlay") {
                 throw std::invalid_argument("[mount validator] overlay fs should have source set to 'overlay'.");
             }
@@ -36,29 +36,13 @@ public:
             }
         }
 
-        if (mount.get_fs_type() == "proc" && mount.get_source() != "none") {
+        if (mount.get_fs_type() == FsType::PROC && mount.get_source() != "none") {
             throw std::invalid_argument("[mount validator] proc mount should have source set to 'none'.");
         }
 
-        if (mount.get_fs_type() == "tmpfs") {
+        if (mount.get_fs_type() == FsType::TMPFS) {
             if (mount.get_source().empty()) {
                 throw std::invalid_argument("[mount validator] tmpfs mount should have source set to 'none' or 'tmpfs'.");
-            }
-        }
-
-        if (!mount.get_fs_type().empty()) {
-            static const std::vector<std::string> known_fs = {
-                "proc", "tmpfs", "sysfs", "overlay", "cgroup", "cgroup2", "mqueue", "devtmpfs", "bind"
-            };
-            bool matched = false;
-            for (const auto& fs : known_fs) {
-                if (mount.get_fs_type() == fs) {
-                    matched = true;
-                    break;
-                }
-            }
-            if (!matched && !(mount.get_flags() & MS_BIND)) {
-                throw std::invalid_argument("[mount validator] unknown filesystem type: " + mount.get_fs_type());
             }
         }
     }
