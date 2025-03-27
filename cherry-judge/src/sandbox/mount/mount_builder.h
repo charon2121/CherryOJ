@@ -11,7 +11,7 @@ class MountBuilder
 private:
     std::string source;
     std::string target;
-    std::string fs_type;
+    FsType fs_type;
     unsigned long flags;
     std::string data;
 
@@ -29,7 +29,7 @@ public:
         return *this;
     }
 
-    MountBuilder &set_fs_type(const std::string &fs_type)
+    MountBuilder &set_fs_type(FsType fs_type)
     {
         this->fs_type = fs_type;
         return *this;
