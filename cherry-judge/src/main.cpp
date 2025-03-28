@@ -1,7 +1,6 @@
 #include <iostream>
 #include "judge/result.h"
 #include "judge/solution.h"
-#include "sandbox/sandbox.h"
 #include <sys/wait.h>
 #include <unistd.h>
 

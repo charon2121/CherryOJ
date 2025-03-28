@@ -47,7 +47,16 @@ public:
             case FsType::CGROUP2: return "cgroup2";
             case FsType::OVERLAY: return "overlay";
             case FsType::UNKNOWN: return "unknown";
+            default: return "unknown";
         }
+    }
+
+    bool operator==(const Mount& other) const {
+        return source == other.source &&
+               target == other.target &&
+               fs_type == other.fs_type &&
+               flags == other.flags &&
+               data == other.data;
     }
 };
 

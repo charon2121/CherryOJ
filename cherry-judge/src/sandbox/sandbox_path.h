@@ -16,7 +16,7 @@ enum class SandboxPathType {
     MOUNT_CGROUP2,   // cgroup2
 
     // sandbox internal custom path (not mounted)
-    SANDBOX_WORK,    // workspace
+    SANDBOX_WORKSPACE,    // workspace
     SANDBOX_TMP,     // tmp
     SANDBOX_LOG,     // log
     SANDBOX_OUTPUT,  // output
