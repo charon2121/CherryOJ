@@ -22,7 +22,7 @@ SandboxManager::SandboxManager(const std::string &root_path)
 }
 
 SandboxManager::~SandboxManager() {
-    // umount_sandbox_paths();
+    umount_sandbox_paths();
 }
 
 void SandboxManager::init_sandbox_paths() {

@@ -52,20 +52,16 @@ public:
         const std::string& target = m.get_target();
 
         // First mount: bind mount
-        if (mount(source.c_str(), target.c_str(), NULL, MS_BIND, NULL) != 0) {
-            std::string error = "[BindMountStrategy] Failed to mount " + source + " to " + target + 
-                              ": " + strerror(errno);
-            std::cerr << error << std::endl;
-            throw std::runtime_error(error);
+        if (mount(source.c_str(), target.c_str(), nullptr, MS_BIND, nullptr) != 0) {
+            throw std::runtime_error("[BindMountStrategy] Failed to mount " + source + " to " + target + 
+                                  ": " + strerror(errno));
         }
 
         // Second mount: remount read-only if needed
         if (m.get_flags() & MS_RDONLY) {
-            if (mount(NULL, target.c_str(), NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL) != 0) {
-                std::string error = "[BindMountStrategy] Failed to remount " + target + 
-                                  " as read-only: " + strerror(errno);
-                std::cerr << error << std::endl;
-                throw std::runtime_error(error);
+            if (mount(nullptr, target.c_str(), nullptr, MS_BIND | MS_REMOUNT | MS_RDONLY, nullptr) != 0) {
+                throw std::runtime_error("[BindMountStrategy] Failed to remount " + target + 
+                                      " as read-only: " + strerror(errno));
             }
         }
     }
@@ -93,8 +89,9 @@ public:
         const char* target = m.get_target().c_str();
 
         // mount the proc filesystem
-        if (mount("proc", target, "proc", NULL, NULL) != 0) {
-            throw std::runtime_error("[ProcMountStrategy] Failed to mount proc to " + m.get_target());
+        if (mount("proc", target, "proc", 0, nullptr) != 0) {
+            throw std::runtime_error("[ProcMountStrategy] Failed to mount proc to " + m.get_target() + 
+                                  ": " + strerror(errno));
         }
     }
 };
