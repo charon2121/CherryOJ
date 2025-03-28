@@ -1,21 +1,21 @@
 #include "sandbox_manager.h"
 #include "mount/mount_factory.h"
 #include <unordered_set>
-
-#include <filesystem>
-#include <iostream>
-
-namespace fs = std::filesystem;
+#include "common/filesystem_utils.h"
 
 SandboxManager::SandboxManager(const std::string &root_path) 
     : root_path(root_path) {
     if (root_path.empty()) {
         throw std::invalid_argument("Root path cannot be empty");
     }
-    // 移除 root_path 末尾的斜杠
-    if (!root_path.empty() && root_path.back() == '/') {
-        this->root_path.pop_back();
+
+    std::string path_copy = root_path;
+    if (path_copy.length() > 1 && path_copy.back() == '/') {
+        path_copy.pop_back();
     }
+    this->root_path = fs::absolute(path_copy).string();
+    ensure_path_exists(this->root_path);
+
     init_sandbox_paths();
     mkdir_sandbox_paths();
     init_sandbox_mounts();
@@ -36,37 +36,11 @@ void SandboxManager::init_sandbox_paths() {
     // 沙箱内的工作目录
     sandbox_paths.push_back(SandboxPath("", root_path + "/workspace", SandboxPathType::SANDBOX_WORKSPACE));
     workspace_path = root_path + "/workspace";
-
-    std::cout << "root_path: " << root_path << std::endl;
 }
 
 void SandboxManager::mkdir_sandbox_paths() {
-    try {
-        // ensure root_path exists
-        fs::create_directories(root_path);
-        
-        for (const auto &path : sandbox_paths) {
-            if (path.type == SandboxPathType::MOUNT_BIND) {
-                // 检查源目录是否存在
-                if (!fs::exists(path.host_path)) {
-                    std::string error = "Host path does not exist: " + path.host_path;
-                    std::cerr << error << std::endl;
-                    throw std::runtime_error(error);
-                }
-                if (!fs::is_directory(path.host_path)) {
-                    std::string error = "Host path is not a directory: " + path.host_path;
-                    std::cerr << error << std::endl;
-                    throw std::runtime_error(error);
-                }
-            }
-            
-            // 创建目标目录
-            fs::create_directories(path.sandbox_path);
-        }
-    } catch (const fs::filesystem_error& e) {
-        std::string error = "Failed to create directories: " + std::string(e.what());
-        std::cerr << error << std::endl;
-        throw std::runtime_error(error);
+    for (const auto &path : sandbox_paths) {
+        ensure_path_exists(path.sandbox_path);
     }
 }
 
@@ -96,7 +70,6 @@ void SandboxManager::init_sandbox_mounts() {
         if (permit_types.count(path.type) == 0) {
             continue;
         }
-        std::cout << "Adding mount: " << path.host_path << " -> " << path.sandbox_path << std::endl;
         Mount mount = convert_to_mount(path);
         mount_manager.add_mount(mount);
     }
