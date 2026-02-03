@@ -1,5 +1,9 @@
-#ifndef CHERRY_COMMON_EVENT_EVENT_H
-#define CHERRY_COMMON_EVENT_EVENT_H
+#ifndef CHERRY_COMMON_EVENT_H
+#define CHERRY_COMMON_EVENT_H
+
+#include <variant>
+
+#include "type/Type.h"
 
 namespace cherry {
 namespace common {
@@ -10,7 +14,11 @@ enum class EventType {
   kJudgeFinished, // 判题完成事件
 };
 
-class Event {
+struct SubmitEvent {
+  SolutionId solutionId;
+};
+
+struct Event {
   EventType type;
 };
 

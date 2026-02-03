@@ -1,3 +1,11 @@
 #include "dispatcher/Dispatcher.h"
 
-int main() { return 0; }
+using namespace cherry::dispatcher;
+
+int main(int argc, char* argv[]) {
+  Dispatcher dispatcher;
+
+  dispatcher.Run();
+
+  return 0;
+}
