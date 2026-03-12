@@ -1,3 +1,5 @@
 .vscode
 cherry-judge/build
 build
+.DS_Store
+node_modules
