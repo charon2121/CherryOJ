@@ -6,6 +6,8 @@
 namespace cherry {
 using SolutionId = std::string;
 using WorkerId = std::string;
+using SubmissionId = std::string;
+using ProblemId = std::string;
 }  // namespace cherry
 
 #endif

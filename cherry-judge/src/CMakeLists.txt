@@ -1,25 +1,34 @@
-# 定义 dispatcher 模块
-# add_library(dispatcher
-#     dispatcher/Dispatcher.cc
-#     dispatcher/WorkerLauncher.cc
-# )
+find_package(Threads REQUIRED)
 
-# add_library(worker
-#     worker/Worker.cc
-# )
+add_library(api
+    api/HttpServer.cc
+)
 
-# target_include_directories(dispatcher PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# target_include_directories(worker PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(api 
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-# add_executable(cherry 
-#     dispatcher/main.cc
-# )
+add_library(service
+    api/SubmissionService.cc
+)
 
-# add_executable(worker_process
-#     worker/main.cc
-# )
+target_include_directories(service
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-# target_link_libraries(cherry
-#     PRIVATE
-#         dispatcher
-# )
+target_link_libraries(api
+    PUBLIC
+        service
+        Threads::Threads
+)
+
+add_executable(http_server
+    api/main.cc
+)
+
+target_link_libraries(http_server
+    PRIVATE
+        api
+)
