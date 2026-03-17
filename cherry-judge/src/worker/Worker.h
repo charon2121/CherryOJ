@@ -1,12 +1,21 @@
-#ifndef CHERRY_WORKER_WORKER_H
-#define CHERRY_WORKER_WORKER_H
+#ifndef CHERRY_WORKER_WORKER_H_
+#define CHERRY_WORKER_WORKER_H_
+
+#include "type/Type.h"
 
 namespace cherry {
 namespace worker {
 
 class Worker {
- private:
+ public:
+  explicit Worker(WorkerId worker_id);
+  ~Worker();
 
+  void Start();
+  void Stop();
+
+ private:
+  WorkerId worker_id_;
 };
 
 }  // namespace worker
