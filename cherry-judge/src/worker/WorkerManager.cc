@@ -1,4 +1,4 @@
-#include "WorkerManager.h"
+#include "worker/WorkerManager.h"
 
 #include <signal.h>
 #include <sys/types.h>
@@ -10,9 +10,9 @@
 #include <cerrno>
 #include <csignal>
 
-#include "Worker.h"
-#include "logger/Logger.h"
-#include "type/Type.h"
+#include "worker/Worker.h"
+#include "common/logger/Logger.h"
+#include "types/Type.h"
 
 using namespace cherry;
 using namespace cherry::worker;

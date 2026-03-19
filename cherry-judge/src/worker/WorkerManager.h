@@ -6,7 +6,7 @@
 #include <atomic>
 #include <unordered_map>
 
-#include "type/Type.h"
+#include "types/Type.h"
 
 namespace cherry {
 namespace worker {

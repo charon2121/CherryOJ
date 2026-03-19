@@ -7,9 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # 引入第三方依赖
-# 处理 json 和 http
-include_directories(
-    ${PROJECT_SOURCE_DIR}/third_party
+# 处理 json 和 http 类似的 http only 库
+add_library(thrid_party INTERFACE)
+target_include_directories(thrid_party
+    INTERFACE
+    ${PROJECT_SOURCE_DIR}/thrid_party
 )
 
 add_subdirectory(src)

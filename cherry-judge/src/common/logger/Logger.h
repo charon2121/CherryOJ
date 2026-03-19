@@ -1,5 +1,5 @@
-#ifndef CHERRY_LOGGER_LOGGER_H_
-#define CHERRY_LOGGER_LOGGER_H_
+#ifndef CHERRY_COMMON_LOGGER_LOGGER_H_
+#define CHERRY_COMMON_LOGGER_LOGGER_H_
 
 #include <iostream>
 

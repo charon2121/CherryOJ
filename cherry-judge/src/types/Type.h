@@ -1,5 +1,5 @@
-#ifndef CHERRY_TYPE_TYPE_H
-#define CHERRY_TYPE_TYPE_H
+#ifndef CHERRY_TYPE_TYPE_H_
+#define CHERRY_TYPE_TYPE_H_
 
 #include <string>
 

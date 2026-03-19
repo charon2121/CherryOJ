@@ -1,7 +1,7 @@
 #ifndef CHERRY_WORKER_WORKER_H_
 #define CHERRY_WORKER_WORKER_H_
 
-#include "type/Type.h"
+#include "types/Type.h"
 
 namespace cherry {
 namespace worker {
