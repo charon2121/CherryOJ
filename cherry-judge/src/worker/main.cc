@@ -1,5 +1,7 @@
 #include "worker/WorkerManager.h"
 
+#include <iostream>
+
 int main(int argc, char* argv[]) 
 { 
   cherry::worker::WorkerManager worker_manager(2);

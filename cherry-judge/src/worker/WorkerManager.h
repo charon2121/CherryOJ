@@ -29,7 +29,7 @@ class WorkerManager {
     WorkerManager(const WorkerManager&) = delete;
     WorkerManager& operator=(const WorkerManager&) = delete;
 
-    bool Start();  // 启动
+    void Start();  // 启动
     void Stop();   // 关闭
 
     bool IsRunning() const;

@@ -9,6 +9,7 @@
 #include <vector>
 #include <cerrno>
 #include <csignal>
+#include <future>
 
 #include "worker/Worker.h"
 #include "common/logger/Logger.h"
@@ -31,23 +32,27 @@ WorkerId WorkerManager::NextId() {
     return "worker-" + std::to_string(next_id_++);
 }
 
-bool WorkerManager::Start() {
-    if (is_running_) return true;
+void WorkerManager::Start() {
+    if (is_running_) return;
 
     if (target_worker_num_ <= 0) {
         is_running_ = true;
-        return true;
+        return;
     }
 
     for (int i = 0; i < target_worker_num_; i++) {
         if (!CreateWorker()) {
             LOG_INFO("WorkManager", " create worker error!");
-            return false;
+            return;
         }
     }
 
     is_running_ = true;
-    return true;
+
+    std::promise<void> promise;
+    auto future = promise.get_future();
+    // 阻塞线程
+    future.wait();
 }
 
 void WorkerManager::Stop() {
