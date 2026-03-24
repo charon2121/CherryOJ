@@ -8,10 +8,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # 引入第三方依赖
 # 处理 json 和 http 类似的 http only 库
-add_library(thrid_party INTERFACE)
-target_include_directories(thrid_party
+add_library(thirdparty_httplib INTERFACE)
+target_include_directories(thirdparty_httplib
     INTERFACE
-    ${PROJECT_SOURCE_DIR}/thrid_party
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/httplib
+)
+
+add_library(thirdparty_json INTERFACE)
+target_include_directories(thirdparty_json
+    INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/nlohmann
 )
 
 add_subdirectory(src)
