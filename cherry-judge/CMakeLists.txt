@@ -11,13 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(thirdparty_httplib INTERFACE)
 target_include_directories(thirdparty_httplib
     INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/httplib
+    ${PROJECT_SOURCE_DIR}/third_party
 )
 
 add_library(thirdparty_json INTERFACE)
 target_include_directories(thirdparty_json
     INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/nlohmann
+    ${PROJECT_SOURCE_DIR}/third_party
 )
 
 add_subdirectory(src)
