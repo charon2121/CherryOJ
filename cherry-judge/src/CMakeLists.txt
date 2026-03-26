@@ -1,3 +1,5 @@
 add_subdirectory(domain)
 add_subdirectory(cmd)
 add_subdirectory(queue)
+add_subdirectory(store)
+add_subdirectory(infra)
