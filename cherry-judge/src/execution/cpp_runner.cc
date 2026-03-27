@@ -30,7 +30,26 @@ domain::RunResult CppRunner::Run(
         return result;
     }
 
-    //  
+    std::vector<std::string> argv = {compile_result->executable_path};
+
+    auto process_result = process_executor_.Run(argv, test_case.input, run_timeout_ms_);
+
+    result.exit_code = process_result.exit_code;
+    result.signal = process_result.term_signal;
+    result.time_ms = process_result.elapsed_ms;
+    result.memory_kb = 0; // TODO: 统计进程的内存占用
+    result.stdout_text = process_result.stdout_text;
+    result.stderr_text = process_result.stderr_text;
+
+    if (process_result.timed_out) {
+        result.verdict = domain::Verdict::kTimeLimitExceeded;
+    } else if (process_result.exit_code == 0) {
+        result.verdict = domain::Verdict::kPending;
+    } else {
+        result.verdict = domain::Verdict::kRuntimeError;
+    }
+
+    return result;
 }
 
 }  // namespace cherry::execution
