@@ -1,5 +1,6 @@
 add_library(cherry_infra
     workspace_manager.cc
+    process_executor.cc
 )
 
 target_include_directories(cherry_infra

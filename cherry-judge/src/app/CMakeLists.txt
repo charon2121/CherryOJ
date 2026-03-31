@@ -1,3 +1,5 @@
+find_package(Threads REQUIRED)
+
 add_library(cherry_app
     judge_pipeline.cc
     submission_service.cc
@@ -14,4 +16,5 @@ target_link_libraries(cherry_app
     cherry_execution
     cherry_queue
     cherry_store
+    Threads::Threads
 )

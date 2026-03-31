@@ -13,7 +13,7 @@ class TaskQueue {
    public:
     virtual ~TaskQueue() = default;
 
-    virtual bool Push(const domain::JudgeTask& task);
+    virtual bool Push(const domain::JudgeTask& task) = 0;
 
     virtual std::optional<domain::JudgeTask> PopBlocking() = 0;
 

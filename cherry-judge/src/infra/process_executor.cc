@@ -42,7 +42,7 @@ std::string CreateTempFile() {
 ProcessResult ProcessExecutor::Run(const std::vector<std::string>& argv,
                                    const std::string& stdin_data,
                                    int64_t timeout_ms,
-                                   const std::string& working_path = "") const {
+                                   const std::string& working_path) const {
     if (argv.empty()) {
         throw std::invalid_argument("argv is empty");
     }

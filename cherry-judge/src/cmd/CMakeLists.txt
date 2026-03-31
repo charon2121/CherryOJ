@@ -12,4 +12,5 @@ target_link_libraries(
     cherry_judge
     cherry_store
     cherry_queue
+    cherry_api
 )
