@@ -13,7 +13,7 @@ domain::RunResult JudgeEngine::JudgeCase(const domain::TestCase& test_case,
     }
 
     if (output_checker_ != nullptr &&
-        output_checker_->isMatch(test_case.expected_output,
+        output_checker_->IsMatch(test_case.expected_output,
                                  run_result.stdout_text)) {
         run_result.verdict = domain::Verdict::kAccepted;
     } else {
