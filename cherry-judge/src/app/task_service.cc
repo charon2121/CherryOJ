@@ -26,7 +26,7 @@ void TaskService::Stop() {
     if (!running_.exchange(false)) {
         return;
     }
-    
+
     task_queue_->Close();
     if (worker_thread_.joinable()) {
         worker_thread_.join();

@@ -10,6 +10,7 @@
 namespace cherry::queue {
 
 class TaskQueue {
+   public:
     virtual ~TaskQueue() = default;
 
     virtual bool Push(const domain::JudgeTask& task);
