@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.SubmissionTestCaseResultMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.SubmissionTestCaseResult">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="submissionId" column="submission_id" jdbcType="BIGINT"/>
+        <result property="testCaseId" column="test_case_id" jdbcType="BIGINT"/>
+        <result property="caseNo" column="case_no" jdbcType="INTEGER"/>
+        <result property="resultCode" column="result_code" jdbcType="VARCHAR"/>
+        <result property="timeUsedMs" column="time_used_ms" jdbcType="INTEGER"/>
+        <result property="memoryUsedKb" column="memory_used_kb" jdbcType="INTEGER"/>
+        <result property="message" column="message" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, submission_id, test_case_id, case_no, result_code, time_used_ms, memory_used_kb, message, created_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `submission_test_case_result` (
+            submission_id, test_case_id, case_no, result_code, time_used_ms, memory_used_kb, message
+        ) VALUES (
+            #{submissionId}, #{testCaseId}, #{caseNo}, #{resultCode},
+            #{timeUsedMs,jdbcType=INTEGER}, #{memoryUsedKb,jdbcType=INTEGER}, #{message}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE `submission_test_case_result`
+        <set>
+            <if test="submissionId != null">submission_id = #{submissionId},</if>
+            <if test="testCaseId != null">test_case_id = #{testCaseId},</if>
+            <if test="caseNo != null">case_no = #{caseNo},</if>
+            <if test="resultCode != null">result_code = #{resultCode},</if>
+            <if test="timeUsedMs != null">time_used_ms = #{timeUsedMs,jdbcType=INTEGER},</if>
+            <if test="memoryUsedKb != null">memory_used_kb = #{memoryUsedKb,jdbcType=INTEGER},</if>
+            <if test="message != null">message = #{message},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `submission_test_case_result` WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `submission_test_case_result`
+        WHERE id = #{id}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `submission_test_case_result`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `submission_test_case_result`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

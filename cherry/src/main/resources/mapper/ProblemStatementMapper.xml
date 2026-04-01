@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.ProblemStatementMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.ProblemStatement">
+        <id property="problemId" column="problem_id" jdbcType="BIGINT"/>
+        <result property="description" column="description" jdbcType="LONGVARCHAR"/>
+        <result property="hint" column="hint" jdbcType="LONGVARCHAR"/>
+        <result property="source" column="source" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        problem_id, description, hint, source, created_at, updated_at
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `problem_statement` (problem_id, description, hint, source)
+        VALUES (#{problemId}, #{description}, #{hint}, #{source})
+    </insert>
+
+    <update id="updateByProblemId">
+        UPDATE `problem_statement`
+        <set>
+            <if test="description != null">description = #{description},</if>
+            <if test="hint != null">hint = #{hint},</if>
+            <if test="source != null">source = #{source},</if>
+        </set>
+        WHERE problem_id = #{problemId}
+    </update>
+
+    <delete id="deleteByProblemId">
+        DELETE FROM `problem_statement` WHERE problem_id = #{problemId}
+    </delete>
+
+    <select id="selectByProblemId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_statement`
+        WHERE problem_id = #{problemId}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `problem_statement`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_statement`
+        ORDER BY problem_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.TestCaseMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.TestCase">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="problemId" column="problem_id" jdbcType="BIGINT"/>
+        <result property="caseNo" column="case_no" jdbcType="INTEGER"/>
+        <result property="inputData" column="input_data" jdbcType="LONGVARCHAR"/>
+        <result property="expectedOutput" column="expected_output" jdbcType="LONGVARCHAR"/>
+        <result property="score" column="score" jdbcType="INTEGER"/>
+        <result property="isSample" column="is_sample" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, problem_id, case_no, input_data, expected_output, score, is_sample, status, created_at, updated_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `test_case` (
+            problem_id, case_no, input_data, expected_output, score, is_sample, status
+        ) VALUES (
+            #{problemId}, #{caseNo}, #{inputData}, #{expectedOutput}, #{score},
+            #{isSample,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE `test_case`
+        <set>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="caseNo != null">case_no = #{caseNo},</if>
+            <if test="inputData != null">input_data = #{inputData},</if>
+            <if test="expectedOutput != null">expected_output = #{expectedOutput},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="isSample != null">is_sample = #{isSample,jdbcType=TINYINT},</if>
+            <if test="status != null">status = #{status,jdbcType=TINYINT},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `test_case` WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `test_case`
+        WHERE id = #{id}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `test_case`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `test_case`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

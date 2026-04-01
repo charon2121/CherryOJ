@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.SubmissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.Submission">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="problemId" column="problem_id" jdbcType="BIGINT"/>
+        <result property="languageId" column="language_id" jdbcType="BIGINT"/>
+        <result property="submitMode" column="submit_mode" jdbcType="TINYINT"/>
+        <result property="sourceCode" column="source_code" jdbcType="LONGVARCHAR"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="resultCode" column="result_code" jdbcType="VARCHAR"/>
+        <result property="score" column="score" jdbcType="INTEGER"/>
+        <result property="timeUsedMs" column="time_used_ms" jdbcType="INTEGER"/>
+        <result property="memoryUsedKb" column="memory_used_kb" jdbcType="INTEGER"/>
+        <result property="codeLength" column="code_length" jdbcType="INTEGER"/>
+        <result property="judgedAt" column="judged_at" jdbcType="TIMESTAMP"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, problem_id, language_id, submit_mode, source_code, status, result_code,
+        score, time_used_ms, memory_used_kb, code_length, judged_at, created_at, updated_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `submission` (
+            user_id, problem_id, language_id, submit_mode, source_code, status, result_code,
+            score, time_used_ms, memory_used_kb, code_length, judged_at
+        ) VALUES (
+            #{userId}, #{problemId}, #{languageId}, #{submitMode,jdbcType=TINYINT}, #{sourceCode},
+            #{status,jdbcType=TINYINT}, #{resultCode}, #{score}, #{timeUsedMs,jdbcType=INTEGER},
+            #{memoryUsedKb,jdbcType=INTEGER}, #{codeLength}, #{judgedAt,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE `submission`
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="languageId != null">language_id = #{languageId},</if>
+            <if test="submitMode != null">submit_mode = #{submitMode,jdbcType=TINYINT},</if>
+            <if test="sourceCode != null">source_code = #{sourceCode},</if>
+            <if test="status != null">status = #{status,jdbcType=TINYINT},</if>
+            <if test="resultCode != null">result_code = #{resultCode},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="timeUsedMs != null">time_used_ms = #{timeUsedMs,jdbcType=INTEGER},</if>
+            <if test="memoryUsedKb != null">memory_used_kb = #{memoryUsedKb,jdbcType=INTEGER},</if>
+            <if test="codeLength != null">code_length = #{codeLength},</if>
+            <if test="judgedAt != null">judged_at = #{judgedAt,jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `submission` WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `submission`
+        WHERE id = #{id}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `submission`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `submission`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

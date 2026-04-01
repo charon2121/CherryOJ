@@ -1,1 +1,28 @@
-spring.application.name=cherry
+spring:
+  application:
+    name: cherry
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev,local}
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+app:
+  cors:
+    allowed-origin-patterns:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+      - HEAD
+    allowed-headers:
+      - "*"
+    allow-credentials: false
+    max-age: 3600

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.ProblemTemplateMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.ProblemTemplate">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="problemId" column="problem_id" jdbcType="BIGINT"/>
+        <result property="languageId" column="language_id" jdbcType="BIGINT"/>
+        <result property="templateCode" column="template_code" jdbcType="LONGVARCHAR"/>
+        <result property="wrapperCode" column="wrapper_code" jdbcType="LONGVARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, problem_id, language_id, template_code, wrapper_code, created_at, updated_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `problem_template` (problem_id, language_id, template_code, wrapper_code)
+        VALUES (#{problemId}, #{languageId}, #{templateCode}, #{wrapperCode})
+    </insert>
+
+    <update id="updateById">
+        UPDATE `problem_template`
+        <set>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="languageId != null">language_id = #{languageId},</if>
+            <if test="templateCode != null">template_code = #{templateCode},</if>
+            <if test="wrapperCode != null">wrapper_code = #{wrapperCode},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `problem_template` WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_template`
+        WHERE id = #{id}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `problem_template`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_template`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

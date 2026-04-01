@@ -1,5 +1,11 @@
 HELP.md
 target/
+
+# 本地密钥与覆盖配置（勿提交）
+.env
+.env.*
+!.env.example
+**/application-local.yaml
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

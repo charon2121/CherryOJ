@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.ProblemMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.Problem">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="problemCode" column="problem_code" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="judgeMode" column="judge_mode" jdbcType="TINYINT"/>
+        <result property="defaultTimeLimitMs" column="default_time_limit_ms" jdbcType="INTEGER"/>
+        <result property="defaultMemoryLimitMb" column="default_memory_limit_mb" jdbcType="INTEGER"/>
+        <result property="defaultStackLimitMb" column="default_stack_limit_mb" jdbcType="INTEGER"/>
+        <result property="difficulty" column="difficulty" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, problem_code, title, judge_mode, default_time_limit_ms, default_memory_limit_mb,
+        default_stack_limit_mb, difficulty, status, created_at, updated_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `problem` (
+            problem_code, title, judge_mode, default_time_limit_ms, default_memory_limit_mb,
+            default_stack_limit_mb, difficulty, status
+        ) VALUES (
+            #{problemCode}, #{title}, #{judgeMode,jdbcType=TINYINT},
+            #{defaultTimeLimitMs}, #{defaultMemoryLimitMb},
+            #{defaultStackLimitMb,jdbcType=INTEGER}, #{difficulty,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE `problem`
+        <set>
+            <if test="problemCode != null">problem_code = #{problemCode},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="judgeMode != null">judge_mode = #{judgeMode,jdbcType=TINYINT},</if>
+            <if test="defaultTimeLimitMs != null">default_time_limit_ms = #{defaultTimeLimitMs},</if>
+            <if test="defaultMemoryLimitMb != null">default_memory_limit_mb = #{defaultMemoryLimitMb},</if>
+            <if test="defaultStackLimitMb != null">default_stack_limit_mb = #{defaultStackLimitMb,jdbcType=INTEGER},</if>
+            <if test="difficulty != null">difficulty = #{difficulty,jdbcType=TINYINT},</if>
+            <if test="status != null">status = #{status,jdbcType=TINYINT},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `problem` WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem`
+        WHERE id = #{id}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `problem`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

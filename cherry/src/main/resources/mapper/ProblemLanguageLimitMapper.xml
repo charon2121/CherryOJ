@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.ProblemLanguageLimitMapper">
+
+    <resultMap id="BaseResultMap" type="com.cherry.entity.ProblemLanguageLimit">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="problemId" column="problem_id" jdbcType="BIGINT"/>
+        <result property="languageId" column="language_id" jdbcType="BIGINT"/>
+        <result property="timeLimitMs" column="time_limit_ms" jdbcType="INTEGER"/>
+        <result property="memoryLimitMb" column="memory_limit_mb" jdbcType="INTEGER"/>
+        <result property="stackLimitMb" column="stack_limit_mb" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, problem_id, language_id, time_limit_ms, memory_limit_mb, stack_limit_mb, created_at, updated_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `problem_language_limit` (
+            problem_id, language_id, time_limit_ms, memory_limit_mb, stack_limit_mb
+        ) VALUES (
+            #{problemId}, #{languageId}, #{timeLimitMs}, #{memoryLimitMb},
+            #{stackLimitMb,jdbcType=INTEGER}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE `problem_language_limit`
+        <set>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="languageId != null">language_id = #{languageId},</if>
+            <if test="timeLimitMs != null">time_limit_ms = #{timeLimitMs},</if>
+            <if test="memoryLimitMb != null">memory_limit_mb = #{memoryLimitMb},</if>
+            <if test="stackLimitMb != null">stack_limit_mb = #{stackLimitMb,jdbcType=INTEGER},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `problem_language_limit` WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_language_limit`
+        WHERE id = #{id}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM `problem_language_limit`
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_language_limit`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>
