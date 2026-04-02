@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.Problem;
+import com.cherry.model.entity.Problem;
 import com.cherry.mapper.ProblemMapper;
 import com.cherry.service.ProblemService;
 

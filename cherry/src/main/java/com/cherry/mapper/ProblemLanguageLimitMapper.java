@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.cherry.entity.ProblemLanguageLimit;
+import com.cherry.model.entity.ProblemLanguageLimit;
 
 public interface ProblemLanguageLimitMapper {
 

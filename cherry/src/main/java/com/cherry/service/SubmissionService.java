@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.Submission;
+import com.cherry.model.entity.Submission;
 
 public interface SubmissionService {
 

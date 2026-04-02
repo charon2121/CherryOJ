@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.Language;
+import com.cherry.model.entity.Language;
 import com.cherry.mapper.LanguageMapper;
 import com.cherry.service.LanguageService;
 

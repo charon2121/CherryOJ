@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.User;
+import com.cherry.model.entity.User;
 import com.cherry.mapper.UserMapper;
 import com.cherry.service.UserService;
 

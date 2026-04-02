@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.TestCase;
+import com.cherry.model.entity.TestCase;
 
 public interface TestCaseService {
 

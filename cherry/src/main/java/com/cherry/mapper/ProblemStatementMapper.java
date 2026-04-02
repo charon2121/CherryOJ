@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.cherry.entity.ProblemStatement;
+import com.cherry.model.entity.ProblemStatement;
 
 public interface ProblemStatementMapper {
 

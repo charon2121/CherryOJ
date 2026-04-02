@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.Submission;
+import com.cherry.model.entity.Submission;
 import com.cherry.mapper.SubmissionMapper;
 import com.cherry.service.SubmissionService;
 

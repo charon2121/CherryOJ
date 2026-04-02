@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cherry.mapper.ProblemMapper">
 
-    <resultMap id="BaseResultMap" type="com.cherry.entity.Problem">
+    <resultMap id="BaseResultMap" type="com.cherry.model.entity.Problem">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="problemCode" column="problem_code" jdbcType="VARCHAR"/>
         <result property="title" column="title" jdbcType="VARCHAR"/>

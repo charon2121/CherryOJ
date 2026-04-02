@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cherry.common.api.PageResult;
 import com.cherry.common.page.PageQuery;
-import com.cherry.entity.ProblemLanguageLimit;
+import com.cherry.model.entity.ProblemLanguageLimit;
 import com.cherry.mapper.ProblemLanguageLimitMapper;
 import com.cherry.service.ProblemLanguageLimitService;
 

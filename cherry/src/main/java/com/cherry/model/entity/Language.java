@@ -1,4 +1,4 @@
-package com.cherry.entity;
+package com.cherry.model.entity;
 
 import java.time.LocalDateTime;
 
