@@ -14,4 +14,9 @@ public class TestController {
     public ApiResponse<String> health() {
         return ApiResponse.ok("ok");
     }
+
+    @GetMapping("/test")
+    public ApiResponse<String> test() {
+        return ApiResponse.ok("ok");
+    }
 }

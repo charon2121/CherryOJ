@@ -51,6 +51,22 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `user`
+        WHERE username = #{username}
+        LIMIT 1
+    </select>
+
+    <select id="selectByEmail" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `user`
+        WHERE email = #{email}
+        LIMIT 1
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `user`
     </select>

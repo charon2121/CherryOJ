@@ -1,7 +1,8 @@
 "use client";
 
 import ThemeToggle from "@/components/theme/ThemeToggle.client";
-import { Button, Link } from "@heroui/react";
+import { Link } from "@heroui/react";
+import NextLink from "next/link";
 
 const nav = [
   { label: "题库", href: "/problems" },
@@ -54,12 +55,18 @@ export default function OJChrome({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
-            <Button size="sm" variant="tertiary" className="hidden sm:inline-flex">
+            <NextLink
+              href="/login"
+              className="hidden h-8 items-center justify-center rounded-lg px-3 text-sm font-medium text-zinc-700 no-underline transition-colors hover:bg-zinc-200/70 sm:inline-flex dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+            >
               登录
-            </Button>
-            <Button size="sm" className="bg-rose-600 text-white hover:bg-rose-500">
+            </NextLink>
+            <NextLink
+              href="/register"
+              className="inline-flex h-8 items-center justify-center rounded-lg bg-rose-600 px-3 text-sm font-medium text-white no-underline hover:bg-rose-500"
+            >
               注册
-            </Button>
+            </NextLink>
           </div>
         </div>
       </header>

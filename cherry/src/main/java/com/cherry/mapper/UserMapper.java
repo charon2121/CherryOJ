@@ -16,6 +16,10 @@ public interface UserMapper {
 
     User selectById(@Param("id") Long id);
 
+    User selectByUsername(@Param("username") String username);
+
+    User selectByEmail(@Param("email") String email);
+
     long count();
 
     List<User> selectPage(@Param("offset") long offset, @Param("limit") int limit);

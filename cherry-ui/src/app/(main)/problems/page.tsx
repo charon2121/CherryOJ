@@ -1,5 +1,5 @@
 import ProblemsList from "@/components/oj/ProblemsList.client";
-import type { Metadata } from "next";
+import type {Metadata} from "next";
 
 export const metadata: Metadata = {
   title: "题库 — CherryOJ",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProblemsPage() {
-  return <ProblemsList />;
+  return <ProblemsList/>;
 }

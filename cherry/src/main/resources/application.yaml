@@ -24,5 +24,12 @@ app:
       - HEAD
     allowed-headers:
       - "*"
-    allow-credentials: false
+    allow-credentials: true
     max-age: 3600
+  jwt:
+    # HS256 至少需要 256 bit（32 字节）；生产务必通过环境变量覆盖
+    secret: ${APP_JWT_SECRET:cherry-oj-dev-jwt-secret-min-32-bytes-long!!}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
+    cookie-name: ${APP_JWT_COOKIE_NAME:cherry_jwt}
+    cookie-path: /
+    cookie-secure: ${APP_JWT_COOKIE_SECURE:false}
