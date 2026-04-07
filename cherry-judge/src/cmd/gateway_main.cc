@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     store::InMemoryResultStore result_store;
     queue::InMemoryTaskQueue task_queue;
 
-    infra::WorkspaceManager workspace_manager("//home/ubuntu/cherry/workspace");
+    infra::WorkspaceManager workspace_manager("/home/ubuntu/cherry/workspace");
     infra::ProcessExecutor process_executor;
 
     execution::CppCompiler cpp_compiler(workspace_manager, process_executor,
