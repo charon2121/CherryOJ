@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cherry.common.api.ResultCode;
 import com.cherry.common.exception.BusinessException;
-import com.cherry.controller.dto.auth.LoginRequest;
-import com.cherry.controller.dto.auth.RegisterRequest;
-import com.cherry.controller.dto.auth.UserProfileDto;
+import com.cherry.model.dto.auth.LoginRequest;
+import com.cherry.model.dto.auth.RegisterRequest;
+import com.cherry.model.dto.auth.UserProfileDto;
 import com.cherry.mapper.UserMapper;
 import com.cherry.model.entity.User;
 import com.cherry.service.AuthService;

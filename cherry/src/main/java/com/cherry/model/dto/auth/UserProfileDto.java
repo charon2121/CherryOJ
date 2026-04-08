@@ -1,4 +1,4 @@
-package com.cherry.controller.dto.auth;
+package com.cherry.model.dto.auth;
 
 import lombok.Builder;
 import lombok.Value;

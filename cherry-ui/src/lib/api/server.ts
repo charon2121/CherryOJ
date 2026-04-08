@@ -20,7 +20,10 @@ export type ServerFetchOptions = JsonInit;
  * 服务端请求 Java 后端：走内网 `BACKEND_URL`，从 Cookie 读取 JWT 并设置 Authorization。
  * 若配置了 `INTERNAL_TOKEN`，会附带 `X-Internal-Token`（BFF 与后端互信时使用）。
  */
-export async function serverFetch<T>(path: string, options: ServerFetchOptions = {}): Promise<T> {
+export async function serverFetch<T>(
+  path: string,
+  options: ServerFetchOptions = {},
+): Promise<T> {
   const base = requireBackendUrl();
   const { query, ...initBase } = options;
   const url = buildUrl(base, path, query);

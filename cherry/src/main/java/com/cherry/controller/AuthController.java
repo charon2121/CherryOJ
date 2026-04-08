@@ -16,10 +16,10 @@ import com.cherry.common.api.ApiResponse;
 import com.cherry.common.api.ResultCode;
 import com.cherry.common.exception.BusinessException;
 import com.cherry.config.JwtProperties;
-import com.cherry.controller.dto.auth.ForgotPasswordRequest;
-import com.cherry.controller.dto.auth.LoginRequest;
-import com.cherry.controller.dto.auth.RegisterRequest;
-import com.cherry.controller.dto.auth.UserProfileDto;
+import com.cherry.model.dto.auth.ForgotPasswordRequest;
+import com.cherry.model.dto.auth.LoginRequest;
+import com.cherry.model.dto.auth.RegisterRequest;
+import com.cherry.model.dto.auth.UserProfileDto;
 import com.cherry.service.AuthService;
 
 import jakarta.servlet.http.Cookie;
