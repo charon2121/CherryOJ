@@ -1,6 +1,5 @@
 "use client";
 
-import { AUTH_JWT_EXPIRATION_MS } from "@/config/auth.public";
 import { ApiError } from "@/lib/api/core";
 import { loginWithPassword } from "@/lib/api/endpoints/auth.client";
 import { Button, Card, Input, Link } from "@heroui/react";
@@ -20,9 +19,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const sessionDays = Math.max(1, Math.round(AUTH_JWT_EXPIRATION_MS / 86_400_000));
-
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     setError(null);
     const parsed = schema.safeParse({ username, password });
@@ -50,9 +47,6 @@ export default function LoginPage() {
     <Card className="border border-zinc-200/80 bg-white/90 p-6 shadow-sm backdrop-blur-sm dark:border-white/[0.08] dark:bg-zinc-900/80">
       <div className="mb-6">
         <h1 className="text-xl font-semibold tracking-tight">登录</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          使用用户名或邮箱登录。登录状态约 {sessionDays} 天（由服务端 JWT 有效期决定）。
-        </p>
       </div>
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         {error ? (

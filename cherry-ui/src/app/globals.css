@@ -8,3 +8,27 @@
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
+.cherry1 {
+  fill: #e8294a;
+}
+.cherry2 {
+  fill: #c0192f;
+}
+.stem {
+  fill: none;
+  stroke: #4a7c3f;
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+.leaf {
+  fill: #3d8b37;
+}
+.leaf-vein {
+  fill: none;
+  stroke: #2d6b28;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.highlight {
+  fill: rgba(255, 255, 255, 0.38);
+}

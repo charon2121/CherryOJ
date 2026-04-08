@@ -1,5 +1,6 @@
 "use client";
 
+import CherryIcon from "@/components/icon/cherry";
 import ThemeToggle from "@/components/theme/ThemeToggle.client";
 import { Link } from "@heroui/react";
 import NextLink from "next/link";
@@ -37,10 +38,11 @@ export default function OJChrome({ children }: { children: React.ReactNode }) {
             href="/"
             className="flex shrink-0 items-center gap-2 text-lg font-semibold tracking-tight text-zinc-900 no-underline dark:text-white"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-rose-700 text-sm font-bold text-white shadow-lg shadow-rose-500/25">
-              C
+            <CherryIcon />
+            <span className="hidden sm:inline">
+              <span>Cherry</span>
+              <span className="text-rose-600">OJ</span>
             </span>
-            <span className="hidden sm:inline">CherryOJ</span>
           </Link>
           <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 md:flex lg:gap-1">
             {nav.map((item) => (
