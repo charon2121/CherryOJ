@@ -15,31 +15,31 @@
 
 ### 2.1 前端（`cherry-ui`）
 
-- [x] 浏览器请求封装 `clientFetch`，`credentials: "include"`，可携带 Cookie。
-- [x] 认证相关接口封装：`loginWithPassword`、`registerAccount`、`fetchCurrentUser`、`logout`、`requestPasswordReset`（重置仍为后端占位能力）。
-- [x] 全局用户状态：Zustand `auth.store` + 根布局 `AuthProvider`，启动时拉取 `/me`。
-- [x] 登录/注册成功后写入 store 并跳转；支持安全 `returnUrl`；题目工作台等场景使用 `RequireAuth`。
-- [x] `clientFetch` 遇业务码 401 时派发 `auth:unauthorized`，由 `AuthProvider` 清空登录态。
-- [ ] 请求层对 **403** 的统一交互（提示无权限、可选跳转/禁用操作），与 401 策略对齐。
-- [ ] 「需要登录的页面」覆盖范围仍按业务逐步扩充（当前并非全站路由表级守卫）。
+- 浏览器请求封装 `clientFetch`，`credentials: "include"`，可携带 Cookie。
+- 认证相关接口封装：`loginWithPassword`、`registerAccount`、`fetchCurrentUser`、`logout`、`requestPasswordReset`（重置仍为后端占位能力）。
+- 全局用户状态：Zustand `auth.store` + 根布局 `AuthProvider`，启动时拉取 `/me`。
+- 登录/注册成功后写入 store 并跳转；支持安全 `returnUrl`；题目工作台等场景使用 `RequireAuth`。
+- `clientFetch` 遇业务码 401 时派发 `auth:unauthorized`，由 `AuthProvider` 清空登录态。
+- 请求层对 **403** 的统一交互（提示无权限、可选跳转/禁用操作），与 401 策略对齐。
+- 「需要登录的页面」覆盖范围仍按业务逐步扩充（当前并非全站路由表级守卫）。
 
 ### 2.2 后端（`cherry`）
 
-- [x] 登录/注册通过 `Set-Cookie` 下发 JWT Cookie（HttpOnly）。
-- [x] `AuthenticationContextFilter`：每请求解析 Cookie 或 `Authorization: Bearer`，写入 `UserContext`（`userId` / `isLogin`）。
-- [x] `GET /api/auth/me` 基于 `UserContext` 返回当前用户，不再在 Controller 内重复解析 Cookie。
-- [x] `POST /api/auth/logout` 清除认证 Cookie。
-- [x] `AuthorizationInterceptor` + `@RequireLogin` / `@RequireAdmin`；示例：`POST /api/submissions` 需登录。
-- [ ] `UserContext.currentUser` 按需加载与缓存策略（当前仍以 `userId` 为主，实体字段可后续补全）。
-- [ ] 管理类接口普遍挂载 `@RequireAdmin` 并与前端管理入口对齐。
-- [ ] `POST /api/auth/forgot-password` 真实发信/重置链路（目前为占位）。
+- 登录/注册通过 `Set-Cookie` 下发 JWT Cookie（HttpOnly）。
+- `AuthenticationContextFilter`：每请求解析 Cookie 或 `Authorization: Bearer`，写入 `UserContext`（`userId` / `isLogin`）。
+- `GET /api/auth/me` 基于 `UserContext` 返回当前用户，不再在 Controller 内重复解析 Cookie。
+- `POST /api/auth/logout` 清除认证 Cookie。
+- `AuthorizationInterceptor` + `@RequireLogin` / `@RequireAdmin`；示例：`POST /api/submissions` 需登录。
+- `UserContext.currentUser` 按需加载与缓存策略（当前仍以 `userId` 为主，实体字段可后续补全）。
+- 管理类接口普遍挂载 `@RequireAdmin` 并与前端管理入口对齐。
+- `POST /api/auth/forgot-password` 真实发信/重置链路（目前为占位）。
 
 ### 2.3 跨部署 / SSR / 测试（横切）
 
-- [ ] 生产环境前后端 **同域反代或 BFF** 与 Cookie 域策略的书面约定与部署配置（文档 4.4 的落地）。
-- [ ] **Refresh Token**、令牌轮换、会话撤销策略（对应需求 N5 / 计划 P3）。
-- [ ] 审计、日志/Trace 中携带用户标识（隐私与脱敏，对应 P3）。
-- [ ] 端到端或集成自动化测试：注册 → 登录 → `/me` → 受保护接口 401 → 登出 → 403 管理员路径等（对应第 6 节 DoD）。
+- 生产环境前后端 **同域反代或 BFF** 与 Cookie 域策略的书面约定与部署配置（文档 4.4 的落地）。
+- **Refresh Token**、令牌轮换、会话撤销策略（对应需求 N5 / 计划 P3）。
+- 审计、日志/Trace 中携带用户标识（隐私与脱敏，对应 P3）。
+- 端到端或集成自动化测试：注册 → 登录 → `/me` → 受保护接口 401 → 登出 → 403 管理员路径等（对应第 6 节 DoD）。
 
 ## 3. 需求文档（Requirements）
 

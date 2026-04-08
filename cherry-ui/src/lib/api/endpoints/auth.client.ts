@@ -9,8 +9,14 @@ export type UserProfile = {
   isAdmin: number;
 };
 
-export function loginWithPassword(body: { username: string; password: string }) {
-  return clientFetch<UserProfile>("/api/auth/login", { method: "POST", json: body });
+export function loginWithPassword(body: {
+  username: string;
+  password: string;
+}) {
+  return clientFetch<UserProfile>("/api/auth/login", {
+    method: "POST",
+    json: body,
+  });
 }
 
 export function registerAccount(body: {
@@ -19,7 +25,10 @@ export function registerAccount(body: {
   password: string;
   nickname?: string;
 }) {
-  return clientFetch<UserProfile>("/api/auth/register", { method: "POST", json: body });
+  return clientFetch<UserProfile>("/api/auth/register", {
+    method: "POST",
+    json: body,
+  });
 }
 
 export function fetchCurrentUser() {
@@ -31,5 +40,8 @@ export function logout() {
 }
 
 export function requestPasswordReset(body: { email: string }) {
-  return clientFetch<null>("/api/auth/forgot-password", { method: "POST", json: body });
+  return clientFetch<null>("/api/auth/forgot-password", {
+    method: "POST",
+    json: body,
+  });
 }
