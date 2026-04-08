@@ -1,5 +1,6 @@
 package com.cherry.controller;
 
+import com.cherry.auth.RequireLogin;
 import com.cherry.common.api.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ public class SubmissionController {
     /**
      * 提交代码
      */
+    @RequireLogin
     @PostMapping
     public ApiResponse<Void> submit() {
         return ApiResponse.ok();

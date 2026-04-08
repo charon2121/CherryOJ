@@ -1,4 +1,5 @@
 import {buildUrl, parseResponse, toRequestInit, type JsonInit} from "./core";
+import { ApiError } from "./core";
 
 function publicBackendUrl(): string {
   const url = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
@@ -18,10 +19,17 @@ export async function clientFetch<T>(path: string, options: ClientFetchOptions =
   const {query, ...initBase} = options;
   const url = buildUrl(base, path, query);
   const init = toRequestInit(initBase);
-  
-  const response = await fetch(url, {
-    ...init,
-    credentials: "include",
-  });
-  return parseResponse<T>(response);
+
+  try {
+    const response = await fetch(url, {
+      ...init,
+      credentials: "include",
+    });
+    return await parseResponse<T>(response);
+  } catch (err) {
+    if (typeof window !== "undefined" && err instanceof ApiError && err.code === 401) {
+      window.dispatchEvent(new Event("auth:unauthorized"));
+    }
+    throw err;
+  }
 }

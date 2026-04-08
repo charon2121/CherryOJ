@@ -26,6 +26,10 @@ export function fetchCurrentUser() {
   return clientFetch<UserProfile>("/api/auth/me", { method: "GET" });
 }
 
+export function logout() {
+  return clientFetch<null>("/api/auth/logout", { method: "POST" });
+}
+
 export function requestPasswordReset(body: { email: string }) {
   return clientFetch<null>("/api/auth/forgot-password", { method: "POST", json: body });
 }

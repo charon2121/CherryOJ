@@ -1,8 +1,5 @@
 package com.cherry.controller;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,15 +12,13 @@ import com.cherry.auth.JwtService;
 import com.cherry.common.api.ApiResponse;
 import com.cherry.common.api.ResultCode;
 import com.cherry.common.exception.BusinessException;
-import com.cherry.config.JwtProperties;
+import com.cherry.context.UserContext;
 import com.cherry.model.dto.auth.ForgotPasswordRequest;
 import com.cherry.model.dto.auth.LoginRequest;
 import com.cherry.model.dto.auth.RegisterRequest;
 import com.cherry.model.dto.auth.UserProfileDto;
 import com.cherry.service.AuthService;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -34,7 +29,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
     private final AuthCookieSupport authCookieSupport;
-    private final JwtProperties jwtProperties;
+    private final UserContext userContext;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserProfileDto>> register(@RequestBody RegisterRequest body) {
@@ -55,13 +50,21 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserProfileDto>> me(HttpServletRequest request) {
-        String token = readJwtFromCookie(request).orElse("");
-        long userId = jwtService.parseUserId(token)
-                .orElseThrow(() -> new BusinessException(ResultCode.UNAUTHORIZED));
+    public ResponseEntity<ApiResponse<UserProfileDto>> me() {
+        Long userId = userContext.getUserId();
+        if (Boolean.FALSE.equals(userContext.getIsLogin()) || userId == null) {
+            throw new BusinessException(ResultCode.UNAUTHORIZED);
+        }
         UserProfileDto profile = authService.findProfile(userId)
                 .orElseThrow(() -> new BusinessException(ResultCode.UNAUTHORIZED));
         return ResponseEntity.ok(ApiResponse.ok(profile));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout() {
+        return ResponseEntity.ok()
+                .headers(authCookieSupport::appendClearCookie)
+                .body(ApiResponse.ok());
     }
 
     /**
@@ -75,15 +78,4 @@ public class AuthController {
         return ApiResponse.ok();
     }
 
-    private Optional<String> readJwtFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return Optional.empty();
-        }
-        return Arrays.stream(cookies)
-                .filter(c -> jwtProperties.getCookieName().equals(c.getName()))
-                .map(Cookie::getValue)
-                .filter(v -> v != null && !v.isBlank())
-                .findFirst();
-    }
 }

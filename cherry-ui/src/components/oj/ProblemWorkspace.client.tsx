@@ -1,5 +1,6 @@
 "use client";
 
+import RequireAuth from "@/components/auth/RequireAuth.client";
 import CodeEditor from "@/components/oj/CodeEditor.client";
 import OJChrome from "@/components/oj/OJChrome.client";
 import type { LangId, Problem } from "@/data/problems";
@@ -63,7 +64,8 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
   }, [lang, problem.id]);
 
   return (
-    <OJChrome>
+    <RequireAuth>
+      <OJChrome>
       <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col border-t border-zinc-200/80 dark:border-white/[0.06] lg:min-h-[calc(100dvh-3.5rem)] lg:flex-row">
         {/* 左侧：题面（LeetCode 式信息架构） */}
         <section className="flex w-full flex-col border-zinc-200/80 dark:border-white/[0.06] lg:w-[46%] lg:max-w-xl lg:border-r xl:max-w-none xl:flex-1">
@@ -309,5 +311,6 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
         </section>
       </div>
     </OJChrome>
+    </RequireAuth>
   );
 }

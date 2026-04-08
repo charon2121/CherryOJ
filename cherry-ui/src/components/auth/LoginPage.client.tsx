@@ -2,9 +2,11 @@
 
 import { ApiError } from "@/lib/api/core";
 import { loginWithPassword } from "@/lib/api/endpoints/auth.client";
+import { sanitizeReturnUrl } from "@/lib/auth/return-url";
+import { useAuthStore } from "@/lib/auth/auth.store";
 import { Button, Card, Input, Link } from "@heroui/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { z } from "zod/v3";
 
 const schema = z.object({
@@ -14,10 +16,29 @@ const schema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setUser = useAuthStore((s) => s.setUser);
+  const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const returnUrlParam = searchParams.get("returnUrl");
+  const safeReturn = sanitizeReturnUrl(returnUrlParam);
+  const registerHref =
+    returnUrlParam != null && returnUrlParam !== ""
+      ? `/register?returnUrl=${encodeURIComponent(returnUrlParam)}`
+      : "/register";
+
+  useEffect(() => {
+    if (!initialized || !user) {
+      return;
+    }
+    router.replace(safeReturn ?? "/problems");
+    router.refresh();
+  }, [initialized, user, router, safeReturn]);
 
   async function onSubmit(e: React.SubmitEvent) {
     e.preventDefault();
@@ -29,8 +50,9 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      await loginWithPassword(parsed.data);
-      router.replace("/problems");
+      const profile = await loginWithPassword(parsed.data);
+      setUser(profile);
+      router.replace(safeReturn ?? "/problems");
       router.refresh();
     } catch (err) {
       if (err instanceof ApiError) {
@@ -92,7 +114,7 @@ export default function LoginPage() {
         </Button>
       </form>
       <div className="mt-6 flex flex-col gap-2 text-center text-sm">
-        <Link href="/register" className="text-rose-600 no-underline hover:underline dark:text-rose-400">
+        <Link href={registerHref} className="text-rose-600 no-underline hover:underline dark:text-rose-400">
           没有账号？去注册
         </Link>
         <Link

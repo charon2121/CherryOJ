@@ -2,6 +2,7 @@ import ProblemWorkspace from "@/components/oj/ProblemWorkspace.client";
 import { getProblemById } from "@/data/problems";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -20,5 +21,15 @@ export default async function ProblemPage({ params }: Props) {
   const { id } = await params;
   const problem = getProblemById(id);
   if (!problem) notFound();
-  return <ProblemWorkspace problem={problem} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-dvh items-center justify-center bg-zinc-50 text-sm text-zinc-500 dark:bg-[#070708] dark:text-zinc-400">
+          加载中…
+        </div>
+      }
+    >
+      <ProblemWorkspace problem={problem} />
+    </Suspense>
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
+import AuthProvider from "@/components/auth/AuthProvider.client";
 import ThemeProvider from "@/components/theme/ThemeProvider.client";
 import "./globals.css";
 
@@ -26,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

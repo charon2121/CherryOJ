@@ -2,9 +2,11 @@
 
 import { ApiError } from "@/lib/api/core";
 import { registerAccount } from "@/lib/api/endpoints/auth.client";
+import { sanitizeReturnUrl } from "@/lib/auth/return-url";
+import { useAuthStore } from "@/lib/auth/auth.store";
 import { Button, Card, Input, Link } from "@heroui/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { z } from "zod/v3";
 
 const schema = z
@@ -19,6 +21,10 @@ const schema = z
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setUser = useAuthStore((s) => s.setUser);
+  const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
@@ -26,6 +32,21 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const returnUrlParam = searchParams.get("returnUrl");
+  const safeReturn = sanitizeReturnUrl(returnUrlParam);
+  const loginHref =
+    returnUrlParam != null && returnUrlParam !== ""
+      ? `/login?returnUrl=${encodeURIComponent(returnUrlParam)}`
+      : "/login";
+
+  useEffect(() => {
+    if (!initialized || !user) {
+      return;
+    }
+    router.replace(safeReturn ?? "/problems");
+    router.refresh();
+  }, [initialized, user, router, safeReturn]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,13 +68,14 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      await registerAccount({
+      const profile = await registerAccount({
         username: parsed.data.username,
         email: parsed.data.email,
         password: parsed.data.password,
         nickname: parsed.data.nickname,
       });
-      router.replace("/problems");
+      setUser(profile);
+      router.replace(safeReturn ?? "/problems");
       router.refresh();
     } catch (err) {
       if (err instanceof ApiError) {
@@ -160,7 +182,7 @@ export default function RegisterPage() {
         </Button>
       </form>
       <div className="mt-6 text-center text-sm">
-        <Link href="/login" className="text-rose-600 no-underline hover:underline dark:text-rose-400">
+        <Link href={loginHref} className="text-rose-600 no-underline hover:underline dark:text-rose-400">
           已有账号？去登录
         </Link>
       </div>

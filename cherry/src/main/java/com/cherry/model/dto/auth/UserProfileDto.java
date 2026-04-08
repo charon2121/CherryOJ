@@ -6,7 +6,6 @@ import lombok.Value;
 @Value
 @Builder
 public class UserProfileDto {
-
     Long id;
     String username;
     String email;
