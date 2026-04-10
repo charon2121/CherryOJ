@@ -1,3 +1,5 @@
+#!/bin/bash
+
 curl -X POST http://localhost:6060/submissions \
   -H "Content-Type: application/json" \
   -d '{
