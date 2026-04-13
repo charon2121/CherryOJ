@@ -89,7 +89,8 @@ export type JsonInit = RequestInit & {
 };
 
 export function toRequestInit(base: JsonInit): RequestInit {
-  const { query: _q, json, headers, body, ...rest } = base;
+  const { query, json, headers, body, ...rest } = base;
+  void query;
   const h = new Headers(headers);
   let resolved: BodyInit | undefined = body ?? undefined;
   if (json !== undefined) {

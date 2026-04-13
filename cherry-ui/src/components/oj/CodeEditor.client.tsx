@@ -1,6 +1,5 @@
 "use client";
 
-import type { LangId } from "@/data/problems";
 import dynamic from "next/dynamic";
 
 function EditorSkeleton() {
@@ -17,7 +16,7 @@ const MonacoEditorInner = dynamic(() => import("./MonacoEditorInner.client"), {
 });
 
 export interface CodeEditorProps {
-  language: LangId;
+  language: string;
   value: string;
   onChange: (value: string) => void;
 }

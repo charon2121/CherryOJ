@@ -16,6 +16,8 @@ public interface ProblemLanguageLimitMapper {
 
     ProblemLanguageLimit selectById(@Param("id") Long id);
 
+    List<ProblemLanguageLimit> selectByProblemId(@Param("problemId") Long problemId);
+
     long count();
 
     List<ProblemLanguageLimit> selectPage(@Param("offset") long offset, @Param("limit") int limit);

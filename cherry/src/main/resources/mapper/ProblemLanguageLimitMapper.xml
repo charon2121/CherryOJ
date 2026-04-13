@@ -49,6 +49,14 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectByProblemId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem_language_limit`
+        WHERE problem_id = #{problemId}
+        ORDER BY language_id ASC
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `problem_language_limit`
     </select>

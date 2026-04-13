@@ -10,6 +10,8 @@ export interface ExampleCase {
 
 export interface Problem {
   id: string;
+  routeId?: string;
+  backendId?: number;
   title: string;
   difficulty: Difficulty;
   /** 通过率百分比 0–100 */
@@ -22,6 +24,7 @@ export interface Problem {
   timeLimit: string;
   memoryLimit: string;
   templates: Record<LangId, string>;
+  languageOptions?: Array<{ id: LangId; label: string; submitValue: string }>;
 }
 
 export const PROBLEMS: Problem[] = [

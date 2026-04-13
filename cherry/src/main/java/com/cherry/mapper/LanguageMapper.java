@@ -16,7 +16,11 @@ public interface LanguageMapper {
 
     Language selectById(@Param("id") Long id);
 
+    Language selectByCode(@Param("code") String code);
+
     long count();
 
     List<Language> selectPage(@Param("offset") long offset, @Param("limit") int limit);
+
+    List<Language> selectAll();
 }

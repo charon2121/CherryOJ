@@ -1,11 +1,19 @@
 "use client";
 
-import { monacoLanguage, type LangId } from "@/data/problems";
 import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 
+function monacoLanguage(language: string): string {
+  const normalized = language.toLowerCase();
+  if (normalized.includes("cpp") || normalized.includes("c++")) return "cpp";
+  if (normalized.includes("python")) return "python";
+  if (normalized.includes("java")) return "java";
+  if (normalized.includes("rust")) return "rust";
+  return "plaintext";
+}
+
 export interface MonacoEditorInnerProps {
-  language: LangId;
+  language: string;
   value: string;
   onChange: (value: string) => void;
 }

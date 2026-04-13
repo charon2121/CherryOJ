@@ -52,6 +52,14 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectBySubmissionId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `submission_test_case_result`
+        WHERE submission_id = #{submissionId}
+        ORDER BY case_no ASC, id ASC
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `submission_test_case_result`
     </select>

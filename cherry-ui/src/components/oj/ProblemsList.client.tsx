@@ -1,7 +1,6 @@
 "use client";
 
 import type { Difficulty, Problem } from "@/data/problems";
-import { listProblems } from "@/data/problems";
 import OJChrome from "@/components/oj/OJChrome.client";
 import { Badge, Button, Input, Link } from "@heroui/react";
 import { useMemo, useState } from "react";
@@ -14,20 +13,23 @@ function diffPillClass(d: Difficulty) {
 
 const FILTERS: Array<Difficulty | "全部"> = ["全部", "入门", "进阶", "提高"];
 
-export default function ProblemsList() {
+interface ProblemsListProps {
+  initialProblems: Problem[];
+}
+
+export default function ProblemsList({ initialProblems }: ProblemsListProps) {
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty | "全部">("全部");
 
   const rows = useMemo(() => {
-    const all = listProblems();
-    return all.filter((p) => {
+    return initialProblems.filter((p) => {
       if (difficulty !== "全部" && p.difficulty !== difficulty) return false;
       const q = query.trim().toLowerCase();
       if (!q) return true;
       const hay = `${p.id} ${p.title} ${p.tags.join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [query, difficulty]);
+  }, [initialProblems, query, difficulty]);
 
   return (
     <OJChrome>
@@ -103,7 +105,7 @@ export default function ProblemsList() {
                     <td className="px-4 py-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">{p.id}</td>
                     <td className="px-4 py-3">
                       <Link
-                        href={`/problems/${p.id}`}
+                        href={`/problems/${p.routeId ?? p.id}`}
                         className="font-medium text-zinc-900 no-underline hover:text-rose-600 dark:text-zinc-100 dark:hover:text-rose-400"
                       >
                         {p.title}

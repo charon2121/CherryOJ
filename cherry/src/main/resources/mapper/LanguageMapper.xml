@@ -38,6 +38,13 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `language`
+        WHERE code = #{code}
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `language`
     </select>
@@ -48,5 +55,12 @@
         FROM `language`
         ORDER BY id DESC
         LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `language`
+        ORDER BY id ASC
     </select>
 </mapper>

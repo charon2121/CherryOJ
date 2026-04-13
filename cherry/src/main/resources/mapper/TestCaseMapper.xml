@@ -53,6 +53,25 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectSamplesByProblemId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `test_case`
+        WHERE problem_id = #{problemId}
+          AND is_sample = 1
+          AND status = 1
+        ORDER BY case_no ASC
+    </select>
+
+    <select id="selectActiveByProblemId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `test_case`
+        WHERE problem_id = #{problemId}
+          AND status = #{status}
+        ORDER BY case_no ASC
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `test_case`
     </select>

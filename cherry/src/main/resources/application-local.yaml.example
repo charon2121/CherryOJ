@@ -12,3 +12,12 @@ spring:
 #     expiration-ms: 86400000
 #     cookie-name: cherry_jwt
 #     cookie-secure: false
+#
+# 远程判题服务（cherry-judge）
+# app:
+#   judge:
+#     enabled: true
+#     base-url: http://127.0.0.1:8081
+#     connect-timeout-ms: 2000
+#     poll-interval-ms: 200
+#     max-wait-ms: 15000

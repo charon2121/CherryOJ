@@ -58,14 +58,35 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectPublishedById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem`
+        WHERE id = #{id}
+          AND status = #{status}
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `problem`
+    </select>
+
+    <select id="countPublished" resultType="long">
+        SELECT COUNT(*) FROM `problem` WHERE status = #{status}
     </select>
 
     <select id="selectPage" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM `problem`
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="selectPublishedPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem`
+        WHERE status = #{status}
         ORDER BY id DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>

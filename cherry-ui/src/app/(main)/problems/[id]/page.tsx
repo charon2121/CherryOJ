@@ -1,5 +1,7 @@
 import ProblemWorkspace from "@/components/oj/ProblemWorkspace.client";
 import { getProblemById } from "@/data/problems";
+import { getProblem as getProblemApi } from "@/lib/api/endpoints/problems";
+import { adaptProblemDetail } from "@/lib/oj/problem-adapter";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -10,7 +12,14 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const p = getProblemById(id);
+  let p = getProblemById(id);
+  if (!p && /^\d+$/.test(id)) {
+    try {
+      p = adaptProblemDetail(await getProblemApi(id));
+    } catch {
+      p = undefined;
+    }
+  }
   return {
     title: p ? `${p.id}. ${p.title} — CherryOJ` : "题目 — CherryOJ",
     description: p ? p.description.slice(0, 120) : undefined,
@@ -19,7 +28,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProblemPage({ params }: Props) {
   const { id } = await params;
-  const problem = getProblemById(id);
+  let problem = getProblemById(id);
+  if (!problem && /^\d+$/.test(id)) {
+    try {
+      problem = adaptProblemDetail(await getProblemApi(id));
+    } catch {
+      problem = undefined;
+    }
+  }
   if (!problem) notFound();
   return (
     <Suspense

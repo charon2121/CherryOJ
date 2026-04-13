@@ -16,6 +16,8 @@ public interface SubmissionTestCaseResultMapper {
 
     SubmissionTestCaseResult selectById(@Param("id") Long id);
 
+    List<SubmissionTestCaseResult> selectBySubmissionId(@Param("submissionId") Long submissionId);
+
     long count();
 
     List<SubmissionTestCaseResult> selectPage(@Param("offset") long offset, @Param("limit") int limit);

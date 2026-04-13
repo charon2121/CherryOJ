@@ -16,6 +16,12 @@ public interface TestCaseMapper {
 
     TestCase selectById(@Param("id") Long id);
 
+    List<TestCase> selectSamplesByProblemId(@Param("problemId") Long problemId);
+
+    List<TestCase> selectActiveByProblemId(
+            @Param("problemId") Long problemId,
+            @Param("status") Integer status);
+
     long count();
 
     List<TestCase> selectPage(@Param("offset") long offset, @Param("limit") int limit);

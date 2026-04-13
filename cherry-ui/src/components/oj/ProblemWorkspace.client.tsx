@@ -5,6 +5,8 @@ import CodeEditor from "@/components/oj/CodeEditor.client";
 import OJChrome from "@/components/oj/OJChrome.client";
 import type { LangId, Problem } from "@/data/problems";
 import { LANG_LABEL } from "@/data/problems";
+import type { SubmissionDetailResponse } from "@/lib/api/oj-types";
+import { getSubmission, submitCode } from "@/lib/api/endpoints/submissions.client";
 import { Badge, Button, Link, Spinner, Tabs, TextArea } from "@heroui/react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -14,18 +16,25 @@ function diffPill(d: Problem["difficulty"]) {
   return "bg-rose-500/15 text-rose-900 dark:text-rose-300";
 }
 
-const LANGS: LangId[] = ["cpp", "python", "java", "rust"];
-
 interface ProblemWorkspaceProps {
   problem: Problem;
 }
 
 export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
-  const [lang, setLang] = useState<LangId>("cpp");
-  const [code, setCode] = useState(problem.templates.cpp);
+  const languageOptions = problem.languageOptions?.length
+    ? problem.languageOptions
+    : ([
+        { id: "cpp", label: LANG_LABEL.cpp, submitValue: "cpp17" },
+        { id: "python", label: LANG_LABEL.python, submitValue: "python3" },
+        { id: "java", label: LANG_LABEL.java, submitValue: "java17" },
+        { id: "rust", label: LANG_LABEL.rust, submitValue: "rust" },
+      ] satisfies Array<{ id: LangId; label: string; submitValue: string }>);
+  const [lang, setLang] = useState<LangId>(languageOptions[0]?.id ?? "cpp");
+  const [code, setCode] = useState(problem.templates[languageOptions[0]?.id ?? "cpp"]);
   const [customInput, setCustomInput] = useState(problem.examples[0]?.input ?? "");
   const [pending, setPending] = useState<"idle" | "run" | "submit">("idle");
   const [runResult, setRunResult] = useState<string | null>(null);
+  const [latestSubmission, setLatestSubmission] = useState<SubmissionDetailResponse | null>(null);
   const busy = pending !== "idle";
 
   const onLangChange = useCallback(
@@ -38,6 +47,19 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
   );
 
   const descriptionBlocks = useMemo(() => problem.description.split(/\n\n+/), [problem.description]);
+  const submissionRows = useMemo(() => {
+    if (!latestSubmission) {
+      return [];
+    }
+    return [
+      {
+        s: latestSubmission.resultCode ?? latestSubmission.status,
+        l: latestSubmission.languageCode ?? languageOptions.find((option) => option.id === lang)?.label ?? lang,
+        t:
+          latestSubmission.timeUsedMs != null ? `${latestSubmission.timeUsedMs} ms` : latestSubmission.status,
+      },
+    ];
+  }, [lang, languageOptions, latestSubmission]);
 
   const mockRun = useCallback(async () => {
     setPending("run");
@@ -55,13 +77,42 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
   const mockSubmit = useCallback(async () => {
     setPending("submit");
     setRunResult(null);
-    await new Promise((r) => setTimeout(r, 900));
-    setRunResult(
-      `已提交（示意）\n语言：${LANG_LABEL[lang]}\n题目：${problem.id}\n\n` +
-        "评测队列中… 接入 API 后将展示真实 verdict。",
-    );
-    setPending("idle");
-  }, [lang, problem.id]);
+    setLatestSubmission(null);
+    try {
+      if (problem.backendId != null) {
+        const selectedLanguage = languageOptions.find((option) => option.id === lang);
+        const created = await submitCode({
+          problemId: problem.backendId,
+          languageCode: selectedLanguage?.submitValue ?? lang,
+          sourceCode: code,
+        });
+        const detail = await getSubmission(created.submissionId);
+        setLatestSubmission(detail);
+        setRunResult(
+          [
+            `提交 #${detail.id}`,
+            `状态：${detail.status}`,
+            `结果：${detail.resultCode ?? "—"}`,
+            `语言：${detail.languageCode ?? selectedLanguage?.label ?? lang}`,
+            detail.message ? `说明：${detail.message}` : null,
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        );
+      } else {
+        await new Promise((r) => setTimeout(r, 900));
+        setRunResult(
+          `已提交（示意）\n语言：${LANG_LABEL[lang]}\n题目：${problem.id}\n\n` +
+            "当前页面使用的是本地 mock 数据，未绑定后端题目 ID。",
+        );
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "提交失败";
+      setRunResult(`提交失败\n\n${message}`);
+    } finally {
+      setPending("idle");
+    }
+  }, [code, lang, languageOptions, problem.backendId, problem.id]);
 
   return (
     <RequireAuth>
@@ -205,11 +256,7 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      { s: "AC", l: "C++", t: "4 ms" },
-                      { s: "AC", l: "Python 3", t: "36 ms" },
-                      { s: "WA", l: "C++", t: "—" },
-                    ].map((row, i) => (
+                    {submissionRows.map((row, i) => (
                       <tr key={i} className="border-b border-zinc-100 dark:border-white/[0.05]">
                         <td className="px-3 py-2">
                           <Badge color={row.s === "AC" ? "success" : "danger"}>{row.s}</Badge>
@@ -221,6 +268,11 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
                   </tbody>
                 </table>
               </div>
+              {submissionRows.length === 0 && (
+                <p className="px-3 py-4 text-sm text-zinc-500 dark:text-zinc-400">
+                  暂无当前会话内的提交记录。
+                </p>
+              )}
             </Tabs.Panel>
           </Tabs.Root>
         </section>
@@ -237,9 +289,9 @@ export default function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
               onChange={(e) => onLangChange(e.target.value as LangId)}
               className="h-9 max-w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none ring-rose-500/40 focus:ring-2 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-100"
             >
-              {LANGS.map((l) => (
-                <option key={l} value={l}>
-                  {LANG_LABEL[l]}
+              {languageOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
                 </option>
               ))}
             </select>
