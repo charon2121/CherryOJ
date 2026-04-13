@@ -53,6 +53,14 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectByProblemId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `test_case`
+        WHERE problem_id = #{problemId}
+        ORDER BY case_no ASC, id ASC
+    </select>
+
     <select id="selectSamplesByProblemId" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -71,6 +79,10 @@
           AND status = #{status}
         ORDER BY case_no ASC
     </select>
+
+    <delete id="deleteByProblemId">
+        DELETE FROM `test_case` WHERE problem_id = #{problemId}
+    </delete>
 
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `test_case`

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Next.js UI Implementation"
+  short_description: "Implement polished Next.js App Router interfaces"
+  default_prompt: "Use $nextjs-ui-implementation to build a distinctive production-grade Next.js interface."

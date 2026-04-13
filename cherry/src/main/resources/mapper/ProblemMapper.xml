@@ -66,6 +66,13 @@
           AND status = #{status}
     </select>
 
+    <select id="selectByProblemCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `problem`
+        WHERE problem_code = #{problemCode}
+    </select>
+
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM `problem`
     </select>

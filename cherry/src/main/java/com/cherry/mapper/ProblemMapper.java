@@ -18,6 +18,8 @@ public interface ProblemMapper {
 
     Problem selectPublishedById(@Param("id") Long id, @Param("status") Integer status);
 
+    Problem selectByProblemCode(@Param("problemCode") String problemCode);
+
     long count();
 
     long countPublished(@Param("status") Integer status);

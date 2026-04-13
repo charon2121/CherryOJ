@@ -6,6 +6,7 @@ import { useAuthStore } from "@/lib/auth/auth.store";
 import { Link } from "@heroui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 const nav = [
   { label: "题库", href: "/problems" },
@@ -18,8 +19,26 @@ export default function OJChrome({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+    function onPointerDown(event: MouseEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    window.addEventListener("mousedown", onPointerDown);
+    return () => {
+      window.removeEventListener("mousedown", onPointerDown);
+    };
+  }, [menuOpen]);
 
   async function onLogout() {
+    setMenuOpen(false);
     await logout();
     router.replace("/login");
     router.refresh();
@@ -70,18 +89,47 @@ export default function OJChrome({ children }: { children: React.ReactNode }) {
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
             {user ? (
-              <>
-                <span className="hidden text-sm text-zinc-700 sm:inline dark:text-zinc-300">
-                  {user.nickname || user.username}
-                </span>
+              <div className="relative" ref={menuRef}>
                 <button
                   type="button"
-                  onClick={() => void onLogout()}
-                  className="inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-200/70 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                  onClick={() => setMenuOpen((open) => !open)}
+                  className="inline-flex h-8 items-center gap-2 rounded-lg px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-200/70 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                  aria-haspopup="menu"
+                  aria-expanded={menuOpen}
                 >
-                  退出
+                  <span className="hidden sm:inline">{user.nickname || user.username}</span>
+                  <span className="sm:hidden">{(user.nickname || user.username).slice(0, 1)}</span>
+                  <span className={`text-xs transition-transform ${menuOpen ? "rotate-180" : ""}`}>▾</span>
                 </button>
-              </>
+                {menuOpen ? (
+                  <div className="absolute right-0 top-10 z-50 w-52 overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-lg dark:border-white/[0.08] dark:bg-[#111113]">
+                    <div className="border-b border-zinc-200/80 px-4 py-3 dark:border-white/[0.08]">
+                      <div className="text-sm font-medium text-zinc-900 dark:text-white">
+                        {user.nickname || user.username}
+                      </div>
+                      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{user.email}</div>
+                    </div>
+                    <div className="py-1.5">
+                      {user.isAdmin === 1 ? (
+                        <NextLink
+                          href="/admin"
+                          className="block px-4 py-2.5 text-sm text-zinc-700 no-underline transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          进入管理后台
+                        </NextLink>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => void onLogout()}
+                        className="block w-full px-4 py-2.5 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                      >
+                        退出登录
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             ) : (
               <>
                 <NextLink
