@@ -1,7 +1,7 @@
 "use client";
 
 import Editor from "@monaco-editor/react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme/ThemeProvider.client";
 
 function monacoLanguage(language: string): string {
   const normalized = language.toLowerCase();

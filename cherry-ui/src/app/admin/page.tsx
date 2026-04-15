@@ -44,29 +44,29 @@ export default async function AdminProblemsPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">题目</h1>
-          <p className="mt-1 text-sm text-zinc-500">管理题目条目、状态和编辑入口。</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--foreground)]">题目</h1>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">管理题目条目、状态和编辑入口。</p>
         </div>
         <div className="flex items-center gap-2">
           <Tag>{page.total} 条</Tag>
           <NextLink
             href="/admin/problems/new"
-            className="inline-flex h-8 items-center justify-center rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white no-underline hover:bg-zinc-800"
+            className="inline-flex h-8 items-center justify-center rounded-lg bg-[color:var(--accent)] px-3 text-sm font-medium text-[color:var(--accent-foreground)] no-underline hover:opacity-90"
           >
             新建题目
           </NextLink>
         </div>
       </div>
 
-      <Card className="border border-zinc-200/80 bg-white shadow-none">
+      <Card className="border border-[color:var(--border)] bg-[color:var(--surface)] shadow-none">
         <Card.Content className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[980px] text-left text-sm">
               <thead>
-                <tr className="border-b border-zinc-200/80 bg-zinc-50/80 text-xs text-zinc-500">
+                <tr className="border-b border-[color:var(--border)] bg-[color:var(--surface-secondary)] text-xs text-[color:var(--muted)]">
                   <th className="px-5 py-3 font-medium">题号</th>
                   <th className="px-5 py-3 font-medium">标题</th>
                   <th className="px-5 py-3 font-medium">难度</th>
@@ -79,11 +79,11 @@ export default async function AdminProblemsPage() {
               </thead>
               <tbody>
                 {page.items.map((problem) => (
-                  <tr key={problem.id} className="border-b border-zinc-100/90 hover:bg-zinc-50/60">
-                    <td className="px-5 py-3.5 font-mono text-xs text-zinc-500">{problem.problemCode || problem.id}</td>
+                  <tr key={problem.id} className="border-b border-[color:var(--border)] hover:bg-[color:var(--surface-secondary)]">
+                    <td className="px-5 py-3.5 font-mono text-xs text-[color:var(--muted)]">{problem.problemCode || problem.id}</td>
                     <td className="px-5 py-3.5">
-                      <div className="font-medium text-zinc-900">{problem.title}</div>
-                      <div className="mt-0.5 text-xs text-zinc-500">ID {problem.id}</div>
+                      <div className="font-medium text-[color:var(--foreground)]">{problem.title}</div>
+                      <div className="mt-0.5 text-xs text-[color:var(--muted)]">ID {problem.id}</div>
                     </td>
                     <td className="px-5 py-3.5">
                       <Tag tone={difficultyColor(problem.difficulty)}>
@@ -93,13 +93,13 @@ export default async function AdminProblemsPage() {
                     <td className="px-5 py-3.5">
                       <Tag>{statusLabel(problem.status)}</Tag>
                     </td>
-                    <td className="px-5 py-3.5 text-zinc-600">{problem.defaultTimeLimitMs} ms</td>
-                    <td className="px-5 py-3.5 text-zinc-600">{problem.defaultMemoryLimitMb} MB</td>
-                    <td className="px-5 py-3.5 text-zinc-500">{formatDateTime(problem.updatedAt)}</td>
+                    <td className="px-5 py-3.5 text-[color:var(--muted)]">{problem.defaultTimeLimitMs} ms</td>
+                    <td className="px-5 py-3.5 text-[color:var(--muted)]">{problem.defaultMemoryLimitMb} MB</td>
+                    <td className="px-5 py-3.5 text-[color:var(--muted)]">{formatDateTime(problem.updatedAt)}</td>
                     <td className="px-5 py-3.5">
                       <Link
                         href={`/admin/problems/${problem.id}`}
-                        className="inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium no-underline hover:bg-zinc-100"
+                        className="inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium no-underline hover:bg-[color:var(--surface-secondary)]"
                       >
                         编辑
                       </Link>
@@ -110,7 +110,7 @@ export default async function AdminProblemsPage() {
             </table>
           </div>
           {page.items.length === 0 ? (
-            <div className="px-6 py-14 text-center text-sm text-zinc-500">当前没有题目数据。</div>
+            <div className="px-6 py-14 text-center text-sm text-[color:var(--muted)]">当前没有题目数据。</div>
           ) : null}
         </Card.Content>
       </Card>

@@ -71,12 +71,18 @@ function toInitialState(problem?: AdminProblemDetail | null): AdminProblemUpsert
 }
 
 function selectClassName() {
-  return "h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400";
+  return "h-10 w-full rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-sm text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--accent)]";
 }
 
 function fieldLabelClassName() {
-  return "text-sm font-medium text-zinc-700";
+  return "text-sm font-medium text-[color:var(--foreground)]";
 }
+
+const adminInputClassName =
+  "w-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] shadow-none placeholder:text-[color:var(--muted)] focus-visible:border-[color:var(--accent)]";
+
+const adminTextAreaClassName =
+  "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] shadow-none placeholder:text-[color:var(--muted)]";
 
 interface AdminProblemFormProps {
   mode: "create" | "edit";
@@ -183,9 +189,9 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
   return (
     <form onSubmit={onSubmit} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
-          <Card className="border border-zinc-200/80 bg-white shadow-none">
-            <Card.Header className="border-b border-zinc-200/80 px-4 py-3">
-              <Card.Title className="text-base text-zinc-900">基础信息</Card.Title>
+          <Card className="border border-[color:var(--border)] bg-[color:var(--surface)] shadow-none">
+            <Card.Header className="border-b border-[color:var(--border)] px-4 py-3">
+              <Card.Title className="text-base text-[color:var(--foreground)]">基础信息</Card.Title>
             </Card.Header>
             <Card.Content className="grid gap-4 p-4 md:grid-cols-2">
               <label className="space-y-2">
@@ -194,6 +200,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   placeholder="P1001"
                   value={state.problemCode}
                   onChange={(event) => updateField("problemCode", event.target.value)}
+                  className={adminInputClassName}
                 />
               </label>
               <label className="space-y-2">
@@ -202,6 +209,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   placeholder="两数之和"
                   value={state.title}
                   onChange={(event) => updateField("title", event.target.value)}
+                  className={adminInputClassName}
                 />
               </label>
               <label className="space-y-2">
@@ -244,6 +252,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   placeholder="《代码随想录》"
                   value={state.source}
                   onChange={(event) => updateField("source", event.target.value)}
+                  className={adminInputClassName}
                 />
               </label>
               <label className="space-y-2">
@@ -252,6 +261,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   type="number"
                   value={String(state.defaultTimeLimitMs)}
                   onChange={(event) => updateField("defaultTimeLimitMs", Number(event.target.value))}
+                  className={adminInputClassName}
                 />
               </label>
               <label className="space-y-2">
@@ -260,6 +270,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   type="number"
                   value={String(state.defaultMemoryLimitMb)}
                   onChange={(event) => updateField("defaultMemoryLimitMb", Number(event.target.value))}
+                  className={adminInputClassName}
                 />
               </label>
               <label className="space-y-2">
@@ -274,14 +285,15 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                       event.target.value === "" ? null : Number(event.target.value),
                     )
                   }
+                  className={adminInputClassName}
                 />
               </label>
             </Card.Content>
           </Card>
 
-          <Card className="border border-zinc-200/80 bg-white shadow-none">
-            <Card.Header className="border-b border-zinc-200/80 px-4 py-3">
-              <Card.Title className="text-base text-zinc-900">题面内容</Card.Title>
+          <Card className="border border-[color:var(--border)] bg-[color:var(--surface)] shadow-none">
+            <Card.Header className="border-b border-[color:var(--border)] px-4 py-3">
+              <Card.Title className="text-base text-[color:var(--foreground)]">题面内容</Card.Title>
             </Card.Header>
             <Card.Content className="space-y-4 p-4">
               <label className="space-y-2">
@@ -289,7 +301,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                 <TextArea
                   value={state.description}
                   onChange={(event) => updateField("description", event.target.value)}
-                  className="min-h-[240px]"
+                  className={`min-h-[240px] ${adminTextAreaClassName}`}
                 />
               </label>
               <label className="space-y-2">
@@ -297,7 +309,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                 <TextArea
                   value={state.hint}
                   onChange={(event) => updateField("hint", event.target.value)}
-                  className="min-h-[160px]"
+                  className={`min-h-[160px] ${adminTextAreaClassName}`}
                 />
               </label>
             </Card.Content>
@@ -310,21 +322,21 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
             <Tag>样例 {stats.samples}</Tag>
             <Tag>隐藏 {stats.hidden}</Tag>
           </div>
-          <Card className="border border-zinc-200/80 bg-white shadow-none">
-            <Card.Header className="flex flex-row items-center justify-between gap-3 border-b border-zinc-200/80 px-4 py-3">
-              <Card.Title className="text-base text-zinc-900">测试用例</Card.Title>
+          <Card className="border border-[color:var(--border)] bg-[color:var(--surface)] shadow-none">
+            <Card.Header className="flex flex-row items-center justify-between gap-3 border-b border-[color:var(--border)] px-4 py-3">
+              <Card.Title className="text-base text-[color:var(--foreground)]">测试用例</Card.Title>
               <Button size="sm" variant="secondary" onPress={addTestCase}>
                 新增
               </Button>
             </Card.Header>
             <Card.Content className="space-y-3 p-4">
               {state.testCases.map((testCase, index) => (
-                <Card key={`${testCase.id ?? "new"}-${index}`} className="border border-zinc-200/80 bg-zinc-50 shadow-none">
+                <Card key={`${testCase.id ?? "new"}-${index}`} className="border border-[color:var(--border)] bg-[color:var(--surface-secondary)] shadow-none">
                   <Card.Content className="space-y-3 p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Tag>{testCase.isSample === 1 ? "样例" : "隐藏"}</Tag>
-                        <span className="text-sm font-medium text-zinc-900">#{index + 1}</span>
+                        <span className="text-sm font-medium text-[color:var(--foreground)]">#{index + 1}</span>
                       </div>
                       <Button size="sm" variant="danger-soft" onPress={() => removeTestCase(index)}>
                         删除
@@ -333,7 +345,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
 
                     <div className="grid gap-3 sm:grid-cols-2">
                       <label className="space-y-2">
-                        <span className="text-sm font-medium text-zinc-700">类型</span>
+                        <span className="text-sm font-medium text-[color:var(--foreground)]">类型</span>
                         <select
                           value={testCase.isSample}
                           onChange={(event) => updateTestCase(index, { isSample: Number(event.target.value) })}
@@ -344,7 +356,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                         </select>
                       </label>
                       <label className="space-y-2">
-                        <span className="text-sm font-medium text-zinc-700">状态</span>
+                        <span className="text-sm font-medium text-[color:var(--foreground)]">状态</span>
                         <select
                           value={testCase.status}
                           onChange={(event) => updateTestCase(index, { status: Number(event.target.value) })}
@@ -361,7 +373,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                       <TextArea
                         value={testCase.inputData}
                         onChange={(event) => updateTestCase(index, { inputData: event.target.value })}
-                        className="min-h-[120px]"
+                        className={`min-h-[120px] ${adminTextAreaClassName}`}
                       />
                     </label>
                     <label className="space-y-2">
@@ -369,7 +381,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                       <TextArea
                         value={testCase.expectedOutput}
                         onChange={(event) => updateTestCase(index, { expectedOutput: event.target.value })}
-                        className="min-h-[120px]"
+                        className={`min-h-[120px] ${adminTextAreaClassName}`}
                       />
                     </label>
                     <label className="space-y-2">
@@ -378,6 +390,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                         type="number"
                         value={String(testCase.score)}
                         onChange={(event) => updateTestCase(index, { score: Number(event.target.value) })}
+                        className={adminInputClassName}
                       />
                     </label>
                   </Card.Content>
@@ -386,7 +399,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
             </Card.Content>
           </Card>
 
-          <Card className="border border-zinc-200/80 bg-white shadow-none">
+          <Card className="border border-[color:var(--border)] bg-[color:var(--surface)] shadow-none">
             <Card.Content className="space-y-3 p-4">
               <Button type="submit" variant="primary" isDisabled={isPending}>
                 {isPending ? "保存中…" : mode === "create" ? "创建题目" : "保存修改"}
@@ -401,13 +414,13 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
               ) : null}
 
               {error ? (
-                <Card className="border border-rose-200 bg-rose-50 shadow-none">
+                <Card className="border border-rose-200 bg-rose-50 shadow-none dark:border-rose-900/60 dark:bg-rose-950/40">
                   <Card.Content className="p-3 text-sm text-rose-700">{error}</Card.Content>
                 </Card>
               ) : null}
 
               {notice ? (
-                <Card className="border border-emerald-200 bg-emerald-50 shadow-none">
+                <Card className="border border-emerald-200 bg-emerald-50 shadow-none dark:border-emerald-900/60 dark:bg-emerald-950/40">
                   <Card.Content className="p-3 text-sm text-emerald-700">{notice}</Card.Content>
                 </Card>
               ) : null}

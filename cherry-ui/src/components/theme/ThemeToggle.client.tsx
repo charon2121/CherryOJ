@@ -1,16 +1,8 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { useTheme } from "next-themes";
-import { useSyncExternalStore, type SVGProps } from "react";
-
-function useClientMounted() {
-  return useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
-}
+import { useTheme } from "@/components/theme/ThemeProvider.client";
+import type { SVGProps } from "react";
 
 function SunIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -41,9 +33,8 @@ function MonitorIcon(props: SVGProps<SVGSVGElement>) {
 const iconClass = "h-[18px] w-[18px]";
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const mounted = useClientMounted();
-  const effectiveTheme = mounted ? theme ?? "system" : "system";
+  const { theme, setTheme, hydrated } = useTheme();
+  const effectiveTheme = hydrated ? theme : "system";
 
   const cycle = () => {
     const order = ["light", "dark", "system"] as const;
@@ -69,7 +60,7 @@ export default function ThemeToggle() {
       onPress={cycle}
       className="shrink-0 text-zinc-600 dark:text-zinc-300"
     >
-      {!mounted ? (
+      {!hydrated ? (
         <MonitorIcon className={iconClass} />
       ) : effectiveTheme === "light" ? (
         <SunIcon className={iconClass} />

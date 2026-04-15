@@ -38,13 +38,13 @@ export default function AdminProblemEditorShell({
   const updatedAt = formatDateTime(problem?.updatedAt);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 border-b border-zinc-200/80 pb-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 border-b border-[color:var(--border)] pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--foreground)]">
             {mode === "create" ? "新建题目" : `${problem?.problemCode} · ${problem?.title}`}
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-[color:var(--muted)]">
             {mode === "create"
               ? "先建立题目骨架，再补充题面、约束和测试用例。"
               : "编辑题目配置、题面与测试用例。保存后将立即刷新服务端快照。"}
