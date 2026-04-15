@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge, Button, Card, Input, Link } from "@heroui/react";
 
 const stats = [
@@ -72,7 +70,7 @@ export default function OJHome() {
               aria-label="搜索题目"
             />
             <Link
-              href={"/problems"}
+              href="/problems"
               className="inline-flex h-10 items-center justify-center rounded-lg bg-rose-600 px-5 text-sm font-medium text-white no-underline transition-colors hover:bg-rose-500"
             >
               进入题库
@@ -104,7 +102,7 @@ export default function OJHome() {
               <p className="text-sm text-zinc-500">按通过率与近期活跃度排序（示意数据）</p>
             </div>
             <Link
-              href={"/problems"}
+              href="/problems"
               className="inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-medium text-zinc-700 no-underline hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
             >
               全部题目

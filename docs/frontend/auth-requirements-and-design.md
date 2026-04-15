@@ -17,11 +17,11 @@
 
 - 浏览器请求封装 `clientFetch`，`credentials: "include"`，可携带 Cookie。
 - 认证相关接口封装：`loginWithPassword`、`registerAccount`、`fetchCurrentUser`、`logout`、`requestPasswordReset`（重置仍为后端占位能力）。
-- 全局用户状态：Zustand `auth.store` + 根布局 `AuthProvider`，启动时拉取 `/me`。
-- 登录/注册成功后写入 store 并跳转；支持安全 `returnUrl`；题目工作台等场景使用 `RequireAuth`。
+- 全局用户状态：Zustand `auth.store` 仅承载用户快照；用户身份由服务端 layout 通过 `AuthSnapshot` 注入，不再在客户端启动时拉 `/me`。
+- 登录/注册成功后写入 store 并跳转；支持安全 `returnUrl`；题目工作台等需要登录的页面由服务端页面入口完成首层拦截。
 - `clientFetch` 遇业务码 401 时派发 `auth:unauthorized`，由 `AuthProvider` 清空登录态。
 - 请求层对 **403** 的统一交互（提示无权限、可选跳转/禁用操作），与 401 策略对齐。
-- 「需要登录的页面」覆盖范围仍按业务逐步扩充（当前并非全站路由表级守卫）。
+- 管理端由 `admin/layout.tsx` 服务端完成管理员校验；前端已不再使用 `RequireAdmin.client` 这类旧式客户端守卫。
 
 ### 2.2 后端（`cherry`）
 
@@ -99,16 +99,23 @@
 
 ### 4.3.1 全局认证状态层
 
-新增 `AuthProvider`（Context 或状态库）：
+当前前端采用“服务端 session + 客户端快照”的组合模式：
 
-- 状态字段：`user`、`loading`、`isAuthenticated`。
-- 初始化时调用 `fetchCurrentUser()`：
-  - 成功：写入 `user`。
-  - 失败（401）：置空 `user`。
-- 对外暴露：
-  - `refreshUser()`
-  - `setUser(profile | null)`（登录后可直接写入返回 profile）
+- 服务端 layout 通过 Cookie 调 `/api/auth/me`，拿到当前用户。
+- `AuthSnapshot.client.tsx` 将服务端用户快照写入 `auth.store`。
+- `auth.store` 只保留：
+  - `user`
+  - `initialized`
+  - `isAuthenticated`
+  - `setUser(profile | null)`（登录/注册成功后立即同步）
   - `logout()`
+
+`AuthProvider.client.tsx` 保留，但职责仅剩：
+
+- 监听 `auth:unauthorized`
+- 在浏览器侧清空用户快照
+
+不再由 `AuthProvider` 主动发起 `/me` 初始化请求。
 
 ### 4.3.2 请求层统一错误处理
 
@@ -122,8 +129,8 @@
   - 保留后端下发 Cookie。
   - 同步刷新全局 `user` 状态后再跳转业务页。
 - 需要登录的页面：
-  - 若 `loading` 中，显示骨架/占位。
-  - 若未登录，重定向登录页（可附带 `returnUrl`）。
+  - 优先在服务端页面入口或 route layout 完成重定向。
+  - 客户端组件不再承担首层登录态判定。
 
 ## 4.4 部署与跨域注意事项
 
@@ -149,7 +156,7 @@
 ### P2
 
 - 后端：落地 `@RequireLogin` / `@RequireAdmin`。
-- 前端：完善受保护页面路由守卫。
+- 前端：将受保护页面与管理入口迁移到服务端权限入口。
 
 ### P3（增强）
 
@@ -163,4 +170,3 @@
 - 无权限访问管理员接口稳定返回 403。
 - 登出后 Cookie 被清理，前端状态同步清空。
 - 关键认证流程具备基础自动化测试（至少覆盖登录、`/me`、登出、401/403）。
-

@@ -1,4 +1,4 @@
-import OJHome from "@/components/oj/OJHome.client";
+import OJHome from "@/components/oj/OJHome";
 
 export default function Home() {
   return <OJHome />;

@@ -1,4 +1,5 @@
-import { Badge, Button, Card, Link } from "@heroui/react";
+import { Badge, Card, Link } from "@heroui/react";
+import NextLink from "next/link";
 
 import { listAdminProblems } from "@/lib/api/endpoints/admin-problems";
 
@@ -49,10 +50,13 @@ export default async function AdminProblemsPage() {
           <p className="mt-1 text-sm text-zinc-500">管理题目条目、状态和编辑入口。</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="flat">{page.total} 条</Badge>
-          <Button as={Link} href="/admin/problems/new" color="primary" size="sm">
+          <Badge variant="soft">{page.total} 条</Badge>
+          <NextLink
+            href="/admin/problems/new"
+            className="inline-flex h-8 items-center justify-center rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white no-underline hover:bg-zinc-800"
+          >
             新建题目
-          </Button>
+          </NextLink>
         </div>
       </div>
 
@@ -81,20 +85,23 @@ export default async function AdminProblemsPage() {
                       <div className="mt-0.5 text-xs text-zinc-500">ID {problem.id}</div>
                     </td>
                     <td className="px-5 py-3.5">
-                      <Badge color={difficultyColor(problem.difficulty)} variant="flat">
+                      <Badge color={difficultyColor(problem.difficulty)} variant="soft">
                         {difficultyLabel(problem.difficulty)}
                       </Badge>
                     </td>
                     <td className="px-5 py-3.5">
-                      <Badge variant="flat">{statusLabel(problem.status)}</Badge>
+                      <Badge variant="soft">{statusLabel(problem.status)}</Badge>
                     </td>
                     <td className="px-5 py-3.5 text-zinc-600">{problem.defaultTimeLimitMs} ms</td>
                     <td className="px-5 py-3.5 text-zinc-600">{problem.defaultMemoryLimitMb} MB</td>
                     <td className="px-5 py-3.5 text-zinc-500">{formatDateTime(problem.updatedAt)}</td>
                     <td className="px-5 py-3.5">
-                      <Button as={Link} href={`/admin/problems/${problem.id}`} size="sm" variant="light">
+                      <Link
+                        href={`/admin/problems/${problem.id}`}
+                        className="inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium no-underline hover:bg-zinc-100"
+                      >
                         编辑
-                      </Button>
+                      </Link>
                     </td>
                   </tr>
                 ))}

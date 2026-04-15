@@ -76,16 +76,19 @@ export default function AdminChrome({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Badge variant="flat" color="success">
+                  <Badge variant="soft" color="success">
                     Admin
                   </Badge>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button as={NextLink} href="/problems" size="sm" variant="flat" className="flex-1">
+                  <NextLink
+                    href="/problems"
+                    className="inline-flex flex-1 items-center justify-center rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 no-underline hover:bg-zinc-50"
+                  >
                     前台
-                  </Button>
-                  <Button size="sm" variant="light" color="danger" className="flex-1" onPress={() => void onLogout()}>
+                  </NextLink>
+                  <Button size="sm" variant="danger-soft" className="flex-1" onPress={() => void onLogout()}>
                     退出
                   </Button>
                 </div>
@@ -102,12 +105,18 @@ export default function AdminChrome({
                 <div className="mt-1 text-xl font-semibold tracking-tight text-zinc-900">内容管理</div>
               </div>
               <div className="flex gap-2">
-                <Button as={NextLink} href="/admin" size="sm" variant="flat">
+                <NextLink
+                  href="/admin"
+                  className="inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium text-zinc-700 no-underline hover:bg-zinc-100"
+                >
                   题目
-                </Button>
-                <Button as={NextLink} href="/admin/problems/new" size="sm" color="primary">
+                </NextLink>
+                <NextLink
+                  href="/admin/problems/new"
+                  className="inline-flex h-8 items-center justify-center rounded-lg bg-zinc-900 px-3 text-sm font-medium text-white no-underline hover:bg-zinc-800"
+                >
                   新建
-                </Button>
+                </NextLink>
               </div>
             </div>
           </header>

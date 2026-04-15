@@ -6,6 +6,7 @@ import {
   deleteAdminProblem,
   updateAdminProblem,
 } from "@/lib/api/endpoints/admin-problems.client";
+import { useAdminProblemDraftStore } from "@/lib/state/admin-problem-draft.store";
 import { Badge, Button, Card, Input, TextArea } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -72,6 +73,10 @@ function selectClassName() {
   return "h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400";
 }
 
+function fieldLabelClassName() {
+  return "text-sm font-medium text-zinc-700";
+}
+
 interface AdminProblemFormProps {
   mode: "create" | "edit";
   problem?: AdminProblemDetail | null;
@@ -79,7 +84,11 @@ interface AdminProblemFormProps {
 
 export default function AdminProblemForm({ mode, problem }: AdminProblemFormProps) {
   const router = useRouter();
-  const [state, setState] = useState<AdminProblemUpsertRequest>(() => toInitialState(problem));
+  const draftKey = mode === "create" ? "create" : `edit:${problem?.id ?? "unknown"}`;
+  const persistedDraft = useAdminProblemDraftStore((store) => store.drafts[draftKey]);
+  const saveDraft = useAdminProblemDraftStore((store) => store.saveDraft);
+  const clearDraft = useAdminProblemDraftStore((store) => store.clearDraft);
+  const state = persistedDraft ?? toInitialState(problem);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -94,30 +103,30 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
   );
 
   function updateField<K extends keyof AdminProblemUpsertRequest>(key: K, value: AdminProblemUpsertRequest[K]) {
-    setState((prev) => ({ ...prev, [key]: value }));
+    saveDraft(draftKey, { ...state, [key]: value });
   }
 
   function updateTestCase(index: number, patch: Partial<AdminProblemTestCase>) {
-    setState((prev) => ({
-      ...prev,
-      testCases: prev.testCases.map((item, itemIndex) =>
+    saveDraft(draftKey, {
+      ...state,
+      testCases: state.testCases.map((item, itemIndex) =>
         itemIndex === index ? { ...item, ...patch } : item,
       ),
-    }));
+    });
   }
 
   function addTestCase() {
-    setState((prev) => ({
-      ...prev,
-      testCases: [...prev.testCases, emptyTestCase(prev.testCases.length + 1)],
-    }));
+    saveDraft(draftKey, {
+      ...state,
+      testCases: [...state.testCases, emptyTestCase(state.testCases.length + 1)],
+    });
   }
 
   function removeTestCase(index: number) {
-    setState((prev) => ({
-      ...prev,
-      testCases: prev.testCases.filter((_, itemIndex) => itemIndex !== index),
-    }));
+    saveDraft(draftKey, {
+      ...state,
+      testCases: state.testCases.filter((_, itemIndex) => itemIndex !== index),
+    });
   }
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -132,6 +141,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
           mode === "create"
             ? await createAdminProblem(payload)
             : await updateAdminProblem(problem!.id, payload);
+        clearDraft(draftKey);
         setNotice(mode === "create" ? "题目已创建。" : "题目已更新。");
         router.replace(`/admin/problems/${result.id}`);
         router.refresh();
@@ -154,12 +164,19 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
     startTransition(async () => {
       try {
         await deleteAdminProblem(problem.id);
+        clearDraft(draftKey);
         router.replace("/admin");
         router.refresh();
       } catch (deleteError) {
         setError(deleteError instanceof Error ? deleteError.message : "删除失败");
       }
     });
+  }
+
+  function onResetDraft() {
+    clearDraft(draftKey);
+    setError(null);
+    setNotice(null);
   }
 
   return (
@@ -170,22 +187,24 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
               <Card.Title className="text-base text-zinc-900">基础信息</Card.Title>
             </Card.Header>
             <Card.Content className="grid gap-4 p-4 md:grid-cols-2">
-              <Input
-                label="题号"
-                labelPlacement="outside"
-                placeholder="P1001"
-                value={state.problemCode}
-                onChange={(event) => updateField("problemCode", event.target.value)}
-              />
-              <Input
-                label="标题"
-                labelPlacement="outside"
-                placeholder="两数之和"
-                value={state.title}
-                onChange={(event) => updateField("title", event.target.value)}
-              />
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">难度</span>
+                <span className={fieldLabelClassName()}>题号</span>
+                <Input
+                  placeholder="P1001"
+                  value={state.problemCode}
+                  onChange={(event) => updateField("problemCode", event.target.value)}
+                />
+              </label>
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>标题</span>
+                <Input
+                  placeholder="两数之和"
+                  value={state.title}
+                  onChange={(event) => updateField("title", event.target.value)}
+                />
+              </label>
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>难度</span>
                 <select
                   value={state.difficulty}
                   onChange={(event) => updateField("difficulty", Number(event.target.value))}
@@ -197,7 +216,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                 </select>
               </label>
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">状态</span>
+                <span className={fieldLabelClassName()}>状态</span>
                 <select
                   value={state.status}
                   onChange={(event) => updateField("status", Number(event.target.value))}
@@ -208,7 +227,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                 </select>
               </label>
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">判题模式</span>
+                <span className={fieldLabelClassName()}>判题模式</span>
                 <select
                   value={state.judgeMode}
                   onChange={(event) => updateField("judgeMode", Number(event.target.value))}
@@ -218,40 +237,44 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   <option value={2}>核心代码</option>
                 </select>
               </label>
-              <Input
-                label="来源"
-                labelPlacement="outside"
-                placeholder="《代码随想录》"
-                value={state.source}
-                onChange={(event) => updateField("source", event.target.value)}
-              />
-              <Input
-                label="时间限制（ms）"
-                labelPlacement="outside"
-                type="number"
-                value={String(state.defaultTimeLimitMs)}
-                onChange={(event) => updateField("defaultTimeLimitMs", Number(event.target.value))}
-              />
-              <Input
-                label="内存限制（MB）"
-                labelPlacement="outside"
-                type="number"
-                value={String(state.defaultMemoryLimitMb)}
-                onChange={(event) => updateField("defaultMemoryLimitMb", Number(event.target.value))}
-              />
-              <Input
-                label="栈限制（MB）"
-                labelPlacement="outside"
-                type="number"
-                placeholder="可留空"
-                value={state.defaultStackLimitMb == null ? "" : String(state.defaultStackLimitMb)}
-                onChange={(event) =>
-                  updateField(
-                    "defaultStackLimitMb",
-                    event.target.value === "" ? null : Number(event.target.value),
-                  )
-                }
-              />
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>来源</span>
+                <Input
+                  placeholder="《代码随想录》"
+                  value={state.source}
+                  onChange={(event) => updateField("source", event.target.value)}
+                />
+              </label>
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>时间限制（ms）</span>
+                <Input
+                  type="number"
+                  value={String(state.defaultTimeLimitMs)}
+                  onChange={(event) => updateField("defaultTimeLimitMs", Number(event.target.value))}
+                />
+              </label>
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>内存限制（MB）</span>
+                <Input
+                  type="number"
+                  value={String(state.defaultMemoryLimitMb)}
+                  onChange={(event) => updateField("defaultMemoryLimitMb", Number(event.target.value))}
+                />
+              </label>
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>栈限制（MB）</span>
+                <Input
+                  type="number"
+                  placeholder="可留空"
+                  value={state.defaultStackLimitMb == null ? "" : String(state.defaultStackLimitMb)}
+                  onChange={(event) =>
+                    updateField(
+                      "defaultStackLimitMb",
+                      event.target.value === "" ? null : Number(event.target.value),
+                    )
+                  }
+                />
+              </label>
             </Card.Content>
           </Card>
 
@@ -260,34 +283,36 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
               <Card.Title className="text-base text-zinc-900">题面内容</Card.Title>
             </Card.Header>
             <Card.Content className="space-y-4 p-4">
-              <TextArea
-                label="题目描述"
-                labelPlacement="outside"
-                value={state.description}
-                onChange={(event) => updateField("description", event.target.value)}
-                minRows={10}
-              />
-              <TextArea
-                label="提示 / 约束"
-                labelPlacement="outside"
-                value={state.hint}
-                onChange={(event) => updateField("hint", event.target.value)}
-                minRows={6}
-              />
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>题目描述</span>
+                <TextArea
+                  value={state.description}
+                  onChange={(event) => updateField("description", event.target.value)}
+                  className="min-h-[240px]"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className={fieldLabelClassName()}>提示 / 约束</span>
+                <TextArea
+                  value={state.hint}
+                  onChange={(event) => updateField("hint", event.target.value)}
+                  className="min-h-[160px]"
+                />
+              </label>
             </Card.Content>
           </Card>
         </div>
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            <Badge variant="flat">用例 {stats.total}</Badge>
-            <Badge variant="flat">样例 {stats.samples}</Badge>
-            <Badge variant="flat">隐藏 {stats.hidden}</Badge>
+            <Badge variant="soft">用例 {stats.total}</Badge>
+            <Badge variant="soft">样例 {stats.samples}</Badge>
+            <Badge variant="soft">隐藏 {stats.hidden}</Badge>
           </div>
           <Card className="border border-zinc-200/80 bg-white shadow-none">
             <Card.Header className="flex flex-row items-center justify-between gap-3 border-b border-zinc-200/80 px-4 py-3">
               <Card.Title className="text-base text-zinc-900">测试用例</Card.Title>
-              <Button size="sm" color="primary" variant="flat" onPress={addTestCase}>
+              <Button size="sm" variant="secondary" onPress={addTestCase}>
                 新增
               </Button>
             </Card.Header>
@@ -297,10 +322,10 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   <Card.Content className="space-y-3 p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant="flat">{testCase.isSample === 1 ? "样例" : "隐藏"}</Badge>
+                        <Badge variant="soft">{testCase.isSample === 1 ? "样例" : "隐藏"}</Badge>
                         <span className="text-sm font-medium text-zinc-900">#{index + 1}</span>
                       </div>
-                      <Button size="sm" variant="light" color="danger" onPress={() => removeTestCase(index)}>
+                      <Button size="sm" variant="danger-soft" onPress={() => removeTestCase(index)}>
                         删除
                       </Button>
                     </div>
@@ -330,27 +355,30 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                       </label>
                     </div>
 
-                    <TextArea
-                      label="输入"
-                      labelPlacement="outside"
-                      value={testCase.inputData}
-                      onChange={(event) => updateTestCase(index, { inputData: event.target.value })}
-                      minRows={4}
-                    />
-                    <TextArea
-                      label="输出"
-                      labelPlacement="outside"
-                      value={testCase.expectedOutput}
-                      onChange={(event) => updateTestCase(index, { expectedOutput: event.target.value })}
-                      minRows={4}
-                    />
-                    <Input
-                      label="分值"
-                      labelPlacement="outside"
-                      type="number"
-                      value={String(testCase.score)}
-                      onChange={(event) => updateTestCase(index, { score: Number(event.target.value) })}
-                    />
+                    <label className="space-y-2">
+                      <span className={fieldLabelClassName()}>输入</span>
+                      <TextArea
+                        value={testCase.inputData}
+                        onChange={(event) => updateTestCase(index, { inputData: event.target.value })}
+                        className="min-h-[120px]"
+                      />
+                    </label>
+                    <label className="space-y-2">
+                      <span className={fieldLabelClassName()}>输出</span>
+                      <TextArea
+                        value={testCase.expectedOutput}
+                        onChange={(event) => updateTestCase(index, { expectedOutput: event.target.value })}
+                        className="min-h-[120px]"
+                      />
+                    </label>
+                    <label className="space-y-2">
+                      <span className={fieldLabelClassName()}>分值</span>
+                      <Input
+                        type="number"
+                        value={String(testCase.score)}
+                        onChange={(event) => updateTestCase(index, { score: Number(event.target.value) })}
+                      />
+                    </label>
                   </Card.Content>
                 </Card>
               ))}
@@ -359,11 +387,14 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
 
           <Card className="border border-zinc-200/80 bg-white shadow-none">
             <Card.Content className="space-y-3 p-4">
-              <Button type="submit" color="primary" isLoading={isPending}>
-                {mode === "create" ? "创建题目" : "保存修改"}
+              <Button type="submit" variant="primary" isDisabled={isPending}>
+                {isPending ? "保存中…" : mode === "create" ? "创建题目" : "保存修改"}
+              </Button>
+              <Button type="button" variant="outline" isDisabled={isPending} onPress={onResetDraft}>
+                重置草稿
               </Button>
               {mode === "edit" ? (
-                <Button type="button" color="danger" variant="flat" isDisabled={isPending} onPress={onDelete}>
+                <Button type="button" variant="danger-soft" isDisabled={isPending} onPress={onDelete}>
                   删除题目
                 </Button>
               ) : null}

@@ -1,4 +1,4 @@
-import ProblemWorkspace from "@/components/oj/ProblemWorkspace.client";
+import ProblemPageShell from "@/components/oj/ProblemPageShell";
 import { getProblemById } from "@/data/problems";
 import { getProblem as getProblemApi } from "@/lib/api/endpoints/problems";
 import { adaptProblemDetail } from "@/lib/oj/problem-adapter";
@@ -47,7 +47,7 @@ export default async function ProblemPage({ params }: Props) {
         </div>
       }
     >
-      <ProblemWorkspace problem={problem} />
+      <ProblemPageShell problem={problem} />
     </Suspense>
   );
 }

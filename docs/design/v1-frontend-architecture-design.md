@@ -323,6 +323,15 @@ src/
 - 已将后台新建 / 编辑页调整为 server shell + client form leaf 结构。
 - 已移除已脱离主流程的 `RequireAuth.client.tsx` 与 `RequireAdmin.client.tsx`。
 - 已新增执行层任务清单：`docs/tasks/v1-frontend-architecture-refactor.json`。
+- 已将首页主组件从 `.client` 组件收敛为服务端组件，开始正式推进页面分解阶段。
+- 已将题库页拆分为 `ProblemsPageShell`（server shell）与 `ProblemsFilterPanel.client`（client filter leaf）。
+- 已将题目详情页拆分为 `ProblemPageShell`（题面 server shell）与 `ProblemEditorPane.client`（提交交互 leaf）。
+- 已新增 `src/lib/state/problem-editor.store.ts`，将题目编辑器草稿从组件局部状态收敛为专用 draft store，并支持持久化。
+- 已新增 `src/lib/state/admin-problem-draft.store.ts`，将后台题目编辑页未提交内容收敛为专用 draft store，并支持恢复与重置。
+- 已新增 `src/lib/state/ui.store.ts`，用于承载顶栏用户菜单等纯 UI 状态。
+- 已新增验证文档：`docs/tests/v1-frontend-architecture-validation.md`。
+- `cherry-ui/package.json` 已补充 `typecheck` 脚本，作为前端架构收尾阶段的基础自动化校验。
+- 第五阶段收尾已完成：验证文档、遗留清理、`lint + typecheck` 均已通过。
 
 当前仍在持续推进的工作：
 

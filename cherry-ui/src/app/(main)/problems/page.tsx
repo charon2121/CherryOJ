@@ -1,4 +1,4 @@
-import ProblemsList from "@/components/oj/ProblemsList.client";
+import ProblemsPageShell from "@/components/oj/ProblemsPageShell";
 import { listProblems as listProblemsApi } from "@/lib/api/endpoints/problems";
 import { adaptProblemSummary } from "@/lib/oj/problem-adapter";
 import { listProblems as listMockProblems } from "@/data/problems";
@@ -20,5 +20,5 @@ async function loadProblems() {
 
 export default async function ProblemsPage() {
   const problems = await loadProblems();
-  return <ProblemsList initialProblems={problems} />;
+  return <ProblemsPageShell initialProblems={problems} />;
 }

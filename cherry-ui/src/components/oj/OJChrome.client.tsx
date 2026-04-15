@@ -5,10 +5,11 @@ import { logout as logoutApi } from "@/lib/api/endpoints/auth.client";
 import CherryIcon from "@/components/icon/cherry";
 import ThemeToggle from "@/components/theme/ThemeToggle.client";
 import { useAuthStore } from "@/lib/auth/auth.store";
+import { useUiStore } from "@/lib/state/ui.store";
 import { Link } from "@heroui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 const nav = [
   { label: "题库", href: "/problems" },
@@ -26,7 +27,9 @@ export default function OJChrome({
 }) {
   const router = useRouter();
   const setUser = useAuthStore((s) => s.setUser);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const menuOpen = useUiStore((s) => s.ojUserMenuOpen);
+  const toggleMenuOpen = useUiStore((s) => s.toggleOjUserMenu);
+  const closeMenu = useUiStore((s) => s.closeOjUserMenu);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -35,17 +38,17 @@ export default function OJChrome({
     }
     function onPointerDown(event: MouseEvent) {
       if (!menuRef.current?.contains(event.target as Node)) {
-        setMenuOpen(false);
+        closeMenu();
       }
     }
     window.addEventListener("mousedown", onPointerDown);
     return () => {
       window.removeEventListener("mousedown", onPointerDown);
     };
-  }, [menuOpen]);
+  }, [closeMenu, menuOpen]);
 
   async function onLogout() {
-    setMenuOpen(false);
+    closeMenu();
     await logoutApi();
     setUser(null);
     router.replace("/login");
@@ -100,7 +103,7 @@ export default function OJChrome({
               <div className="relative" ref={menuRef}>
                 <button
                   type="button"
-                  onClick={() => setMenuOpen((open) => !open)}
+                  onClick={toggleMenuOpen}
                   className="inline-flex h-8 items-center gap-2 rounded-lg px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-200/70 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
                   aria-haspopup="menu"
                   aria-expanded={menuOpen}
@@ -122,7 +125,7 @@ export default function OJChrome({
                         <NextLink
                           href="/admin"
                           className="block px-4 py-2.5 text-sm text-zinc-700 no-underline transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
-                          onClick={() => setMenuOpen(false)}
+                          onClick={closeMenu}
                         >
                           进入管理后台
                         </NextLink>
