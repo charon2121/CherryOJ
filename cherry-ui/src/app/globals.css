@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@heroui/styles";
+@import "./theme.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -31,4 +32,11 @@
 }
 .highlight {
   fill: rgba(255, 255, 255, 0.38);
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
 }

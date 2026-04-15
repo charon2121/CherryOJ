@@ -1,105 +1,120 @@
 "use client";
 
-import RequireAdmin from "@/components/auth/RequireAdmin.client";
+import type { UserProfile } from "@/lib/api/endpoints/auth.client";
+import { logout as logoutApi } from "@/lib/api/endpoints/auth.client";
 import { useAuthStore } from "@/lib/auth/auth.store";
+import { Badge, Button, Card, Link } from "@heroui/react";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
-  { label: "题目管理", href: "/admin" },
-  { label: "新建题目", href: "/admin/problems/new" },
+  { label: "题目", href: "/admin" },
+  { label: "新建", href: "/admin/problems/new" },
 ];
 
-export default function AdminChrome({ children }: { children: React.ReactNode }) {
+export default function AdminChrome({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: UserProfile;
+}) {
   const pathname = usePathname();
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const setUser = useAuthStore((s) => s.setUser);
 
   async function onLogout() {
-    await logout();
+    await logoutApi();
+    setUser(null);
     router.replace("/login");
     router.refresh();
   }
 
   return (
-    <RequireAdmin>
-      <div className="min-h-screen bg-[#f4f1eb] text-zinc-900">
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 -z-10 opacity-70"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at top left, rgba(190, 24, 93, 0.12), transparent 32%), radial-gradient(circle at bottom right, rgba(161, 98, 7, 0.10), transparent 28%)",
-          }}
-        />
-
-        <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[260px_1fr]">
-          <aside className="border-b border-zinc-200/80 bg-[#111111] px-5 py-6 text-zinc-100 lg:border-b-0 lg:border-r lg:px-6">
-            <NextLink href="/admin" className="inline-flex items-center gap-2 text-lg font-semibold no-underline">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-rose-600 text-sm font-bold text-white">
+    <div className="min-h-screen bg-[#f7f7f8] text-zinc-900">
+      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[220px_1fr]">
+        <aside className="border-b border-zinc-200/80 bg-[#fbfbfc] lg:border-b-0 lg:border-r">
+          <div className="px-4 py-4">
+            <Link href="/admin" className="flex items-center gap-3 text-zinc-900 no-underline">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-xs font-semibold text-white">
                 C
-              </span>
-              <span>
-                Cherry<span className="text-rose-400">Admin</span>
-              </span>
-            </NextLink>
+              </div>
+              <div>
+                <div className="text-sm font-semibold tracking-tight">Cherry</div>
+                <div className="text-[11px] text-zinc-500">Admin</div>
+              </div>
+            </Link>
+          </div>
 
-            <nav className="mt-8 flex flex-col gap-1.5">
+          <nav className="px-3 pb-3">
+            <div className="space-y-0.5">
               {navItems.map((item) => {
                 const active = pathname === item.href;
                 return (
-                  <NextLink
+                  <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-xl px-3 py-2.5 text-sm font-medium no-underline transition-colors ${
+                    className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm no-underline transition-colors ${
                       active
-                        ? "bg-white text-zinc-900"
-                        : "text-zinc-300 hover:bg-white/10 hover:text-white"
+                        ? "bg-zinc-900 text-white"
+                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                     }`}
                   >
-                    {item.label}
-                  </NextLink>
+                    <span>{item.label}</span>
+                  </Link>
                 );
               })}
-            </nav>
-
-            <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">当前账号</div>
-              <div className="mt-2 text-sm font-medium text-white">{user?.nickname || user?.username}</div>
-              <div className="mt-1 text-xs text-zinc-400">{user?.email}</div>
-              <button
-                type="button"
-                onClick={() => void onLogout()}
-                className="mt-4 inline-flex h-9 items-center justify-center rounded-lg bg-white/10 px-3 text-sm text-zinc-100 transition-colors hover:bg-white/20"
-              >
-                退出登录
-              </button>
             </div>
-          </aside>
+          </nav>
 
-          <div className="min-w-0">
-            <header className="border-b border-zinc-200/80 bg-white/80 px-4 py-4 backdrop-blur-md sm:px-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-600">
-                    Admin Console
-                  </div>
-                  <div className="mt-1 text-lg font-semibold text-zinc-900">后台管理</div>
+          <div className="px-3 py-3">
+            <Card className="border border-zinc-200/80 bg-white shadow-none">
+              <Card.Content className="space-y-3 p-3">
+                <div className="space-y-1">
+                  <div className="text-sm font-medium text-zinc-900">{user.nickname || user.username}</div>
+                  <div className="text-xs text-zinc-500">{user.email}</div>
                 </div>
-                <NextLink
-                  href="/problems"
-                  className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 no-underline transition-colors hover:bg-zinc-50"
-                >
-                  返回前台
-                </NextLink>
-              </div>
-            </header>
 
-            <main className="px-4 py-6 sm:px-6">{children}</main>
+                <div className="flex items-center gap-2">
+                  <Badge variant="flat" color="success">
+                    Admin
+                  </Badge>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button as={NextLink} href="/problems" size="sm" variant="flat" className="flex-1">
+                    前台
+                  </Button>
+                  <Button size="sm" variant="light" color="danger" className="flex-1" onPress={() => void onLogout()}>
+                    退出
+                  </Button>
+                </div>
+              </Card.Content>
+            </Card>
           </div>
+        </aside>
+
+        <div className="min-w-0">
+          <header className="border-b border-zinc-200/80 bg-[#fdfdfd]">
+            <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <div>
+                <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-400">Workspace</div>
+                <div className="mt-1 text-xl font-semibold tracking-tight text-zinc-900">内容管理</div>
+              </div>
+              <div className="flex gap-2">
+                <Button as={NextLink} href="/admin" size="sm" variant="flat">
+                  题目
+                </Button>
+                <Button as={NextLink} href="/admin/problems/new" size="sm" color="primary">
+                  新建
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <main className="px-4 py-5 sm:px-6">{children}</main>
         </div>
       </div>
-    </RequireAdmin>
+    </div>
   );
 }

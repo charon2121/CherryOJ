@@ -57,9 +57,6 @@ export default function OJHome() {
     <OJChrome>
       <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <section className="mb-16 text-center sm:mb-20 sm:text-left">
-          <Badge className="mb-4" variant="soft" color="danger">
-            沙箱评测 · 多语言 · 实时榜单
-          </Badge>
           <h1 className="mb-4 text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl dark:text-white">
             为算法竞赛
             <span className="bg-gradient-to-r from-rose-600 to-orange-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-orange-300">
@@ -76,7 +73,7 @@ export default function OJHome() {
               aria-label="搜索题目"
             />
             <Link
-              href="/problems"
+              href={"/problems"}
               className="inline-flex h-10 items-center justify-center rounded-lg bg-rose-600 px-5 text-sm font-medium text-white no-underline transition-colors hover:bg-rose-500"
             >
               进入题库
@@ -108,7 +105,7 @@ export default function OJHome() {
               <p className="text-sm text-zinc-500">按通过率与近期活跃度排序（示意数据）</p>
             </div>
             <Link
-              href="/problems"
+              href={"/problems"}
               className="inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-medium text-zinc-700 no-underline hover:bg-zinc-200/80 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
             >
               全部题目

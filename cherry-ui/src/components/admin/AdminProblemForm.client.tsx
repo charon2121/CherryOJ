@@ -6,6 +6,7 @@ import {
   deleteAdminProblem,
   updateAdminProblem,
 } from "@/lib/api/endpoints/admin-problems.client";
+import { Badge, Button, Card, Input, TextArea } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 
@@ -14,8 +15,6 @@ function normalizePayload(state: AdminProblemUpsertRequest): AdminProblemUpsertR
     ...state,
     problemCode: state.problemCode.trim(),
     title: state.title.trim(),
-    description: state.description,
-    hint: state.hint,
     source: state.source.trim(),
     testCases: state.testCases.map((testCase, index) => ({
       ...testCase,
@@ -69,6 +68,10 @@ function toInitialState(problem?: AdminProblemDetail | null): AdminProblemUpsert
   };
 }
 
+function selectClassName() {
+  return "h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400";
+}
+
 interface AdminProblemFormProps {
   mode: "create" | "edit";
   problem?: AdminProblemDetail | null;
@@ -80,10 +83,10 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const pageTitle = mode === "create" ? "新建题目" : `编辑 ${problem?.problemCode ?? ""}`;
 
   const stats = useMemo(
     () => ({
+      total: state.testCases.length,
       samples: state.testCases.filter((testCase) => testCase.isSample === 1).length,
       hidden: state.testCases.filter((testCase) => testCase.isSample !== 1).length,
     }),
@@ -160,314 +163,234 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-[2rem] border border-zinc-200/80 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-600">Problem Editor</div>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900">{pageTitle}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">
-              在同一编辑器里管理题号、判题配置、题面内容与测试样例。布局保持后台视觉体系，不回退到前台做题界面。
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl bg-zinc-100 px-4 py-3">
-              <div className="text-xs uppercase tracking-wide text-zinc-500">题目状态</div>
-              <div className="mt-1 text-sm font-medium text-zinc-900">{state.status === 1 ? "已发布" : "下线"}</div>
-            </div>
-            <div className="rounded-2xl bg-zinc-100 px-4 py-3">
-              <div className="text-xs uppercase tracking-wide text-zinc-500">模式</div>
-              <div className="mt-1 text-sm font-medium text-zinc-900">{state.judgeMode === 1 ? "ACM" : "核心代码"}</div>
-            </div>
-            <div className="rounded-2xl bg-zinc-100 px-4 py-3">
-              <div className="text-xs uppercase tracking-wide text-zinc-500">样例</div>
-              <div className="mt-1 text-sm font-medium text-zinc-900">{stats.samples}</div>
-            </div>
-            <div className="rounded-2xl bg-zinc-100 px-4 py-3">
-              <div className="text-xs uppercase tracking-wide text-zinc-500">隐藏用例</div>
-              <div className="mt-1 text-sm font-medium text-zinc-900">{stats.hidden}</div>
-            </div>
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            {mode === "create" ? "新建题目" : `编辑 ${problem?.problemCode ?? ""}`}
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">维护基础配置、题面和测试用例。</p>
         </div>
-      </section>
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="flat">用例 {stats.total}</Badge>
+          <Badge variant="flat">样例 {stats.samples}</Badge>
+          <Badge variant="flat">隐藏 {stats.hidden}</Badge>
+        </div>
+      </div>
 
-      <form onSubmit={onSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_420px]">
-        <div className="space-y-6">
-          <section className="rounded-[2rem] border border-zinc-200/80 bg-white p-6 shadow-sm">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-zinc-900">基础配置</h2>
-                <p className="mt-1 text-sm text-zinc-500">控制题号、难度、判题模式和运行限制。</p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">题号</span>
-                <input
-                  value={state.problemCode}
-                  onChange={(event) => updateField("problemCode", event.target.value)}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
-                  placeholder="例如 P1001"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">标题</span>
-                <input
-                  value={state.title}
-                  onChange={(event) => updateField("title", event.target.value)}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
-                  placeholder="例如 两数之和"
-                />
-              </label>
-
+      <form onSubmit={onSubmit} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="space-y-4">
+          <Card className="border border-zinc-200/80 bg-white shadow-none">
+            <Card.Header className="border-b border-zinc-200/80 px-4 py-3">
+              <Card.Title className="text-base text-zinc-900">基础信息</Card.Title>
+            </Card.Header>
+            <Card.Content className="grid gap-4 p-4 md:grid-cols-2">
+              <Input
+                label="题号"
+                labelPlacement="outside"
+                placeholder="P1001"
+                value={state.problemCode}
+                onChange={(event) => updateField("problemCode", event.target.value)}
+              />
+              <Input
+                label="标题"
+                labelPlacement="outside"
+                placeholder="两数之和"
+                value={state.title}
+                onChange={(event) => updateField("title", event.target.value)}
+              />
               <label className="space-y-2">
                 <span className="text-sm font-medium text-zinc-700">难度</span>
                 <select
                   value={state.difficulty}
                   onChange={(event) => updateField("difficulty", Number(event.target.value))}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
+                  className={selectClassName()}
                 >
                   <option value={1}>入门</option>
                   <option value={2}>进阶</option>
                   <option value={3}>提高</option>
                 </select>
               </label>
-
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">题目状态</span>
+                <span className="text-sm font-medium text-zinc-700">状态</span>
                 <select
                   value={state.status}
                   onChange={(event) => updateField("status", Number(event.target.value))}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
+                  className={selectClassName()}
                 >
                   <option value={1}>已发布</option>
                   <option value={0}>下线</option>
                 </select>
               </label>
-
               <label className="space-y-2">
                 <span className="text-sm font-medium text-zinc-700">判题模式</span>
                 <select
                   value={state.judgeMode}
                   onChange={(event) => updateField("judgeMode", Number(event.target.value))}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
+                  className={selectClassName()}
                 >
                   <option value={1}>ACM</option>
                   <option value={2}>核心代码</option>
                 </select>
               </label>
+              <Input
+                label="来源"
+                labelPlacement="outside"
+                placeholder="《代码随想录》"
+                value={state.source}
+                onChange={(event) => updateField("source", event.target.value)}
+              />
+              <Input
+                label="时间限制（ms）"
+                labelPlacement="outside"
+                type="number"
+                value={String(state.defaultTimeLimitMs)}
+                onChange={(event) => updateField("defaultTimeLimitMs", Number(event.target.value))}
+              />
+              <Input
+                label="内存限制（MB）"
+                labelPlacement="outside"
+                type="number"
+                value={String(state.defaultMemoryLimitMb)}
+                onChange={(event) => updateField("defaultMemoryLimitMb", Number(event.target.value))}
+              />
+              <Input
+                label="栈限制（MB）"
+                labelPlacement="outside"
+                type="number"
+                placeholder="可留空"
+                value={state.defaultStackLimitMb == null ? "" : String(state.defaultStackLimitMb)}
+                onChange={(event) =>
+                  updateField(
+                    "defaultStackLimitMb",
+                    event.target.value === "" ? null : Number(event.target.value),
+                  )
+                }
+              />
+            </Card.Content>
+          </Card>
 
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">题目来源</span>
-                <input
-                  value={state.source}
-                  onChange={(event) => updateField("source", event.target.value)}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
-                  placeholder="例如 《代码随想录》"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">时间限制（ms）</span>
-                <input
-                  type="number"
-                  value={state.defaultTimeLimitMs}
-                  onChange={(event) => updateField("defaultTimeLimitMs", Number(event.target.value))}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">内存限制（MB）</span>
-                <input
-                  type="number"
-                  value={state.defaultMemoryLimitMb}
-                  onChange={(event) => updateField("defaultMemoryLimitMb", Number(event.target.value))}
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">栈限制（MB）</span>
-                <input
-                  type="number"
-                  value={state.defaultStackLimitMb ?? ""}
-                  onChange={(event) =>
-                    updateField(
-                      "defaultStackLimitMb",
-                      event.target.value === "" ? null : Number(event.target.value),
-                    )
-                  }
-                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:bg-white"
-                  placeholder="可留空"
-                />
-              </label>
-            </div>
-          </section>
-
-          <section className="rounded-[2rem] border border-zinc-200/80 bg-white p-6 shadow-sm">
-            <div className="mb-5">
-              <h2 className="text-lg font-semibold text-zinc-900">题面配置</h2>
-              <p className="mt-1 text-sm text-zinc-500">描述、提示和来源一起作为题目编辑的一部分保存。</p>
-            </div>
-
-            <div className="space-y-4">
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">题目描述</span>
-                <textarea
-                  value={state.description}
-                  onChange={(event) => updateField("description", event.target.value)}
-                  className="min-h-[260px] w-full rounded-[1.5rem] border border-zinc-200 bg-zinc-50 px-4 py-4 text-sm leading-6 outline-none transition focus:border-rose-400 focus:bg-white"
-                  placeholder="使用 Markdown 或纯文本描述题面。"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-700">提示 / 约束</span>
-                <textarea
-                  value={state.hint}
-                  onChange={(event) => updateField("hint", event.target.value)}
-                  className="min-h-[140px] w-full rounded-[1.5rem] border border-zinc-200 bg-zinc-50 px-4 py-4 text-sm leading-6 outline-none transition focus:border-rose-400 focus:bg-white"
-                  placeholder="每行一个约束或提示。"
-                />
-              </label>
-            </div>
-          </section>
+          <Card className="border border-zinc-200/80 bg-white shadow-none">
+            <Card.Header className="border-b border-zinc-200/80 px-4 py-3">
+              <Card.Title className="text-base text-zinc-900">题面内容</Card.Title>
+            </Card.Header>
+            <Card.Content className="space-y-4 p-4">
+              <TextArea
+                label="题目描述"
+                labelPlacement="outside"
+                value={state.description}
+                onChange={(event) => updateField("description", event.target.value)}
+                minRows={10}
+              />
+              <TextArea
+                label="提示 / 约束"
+                labelPlacement="outside"
+                value={state.hint}
+                onChange={(event) => updateField("hint", event.target.value)}
+                minRows={6}
+              />
+            </Card.Content>
+          </Card>
         </div>
 
-        <div className="space-y-6">
-          <section className="rounded-[2rem] border border-zinc-200/80 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-zinc-900">测试用例</h2>
-                <p className="mt-1 text-sm text-zinc-500">支持样例与隐藏用例的统一编辑。</p>
-              </div>
-              <button
-                type="button"
-                onClick={addTestCase}
-                className="inline-flex h-10 items-center justify-center rounded-full bg-zinc-900 px-4 text-sm font-medium text-white transition hover:bg-zinc-800"
-              >
-                新增用例
-              </button>
-            </div>
-
-            <div className="mt-5 space-y-4">
+        <div className="space-y-4">
+          <Card className="border border-zinc-200/80 bg-white shadow-none">
+            <Card.Header className="flex flex-row items-center justify-between gap-3 border-b border-zinc-200/80 px-4 py-3">
+              <Card.Title className="text-base text-zinc-900">测试用例</Card.Title>
+              <Button size="sm" color="primary" variant="flat" onPress={addTestCase}>
+                新增
+              </Button>
+            </Card.Header>
+            <Card.Content className="space-y-3 p-4">
               {state.testCases.map((testCase, index) => (
-                <div key={`${testCase.id ?? "new"}-${index}`} className="rounded-[1.5rem] border border-zinc-200 bg-zinc-50 p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="text-sm font-medium text-zinc-900">用例 #{index + 1}</div>
-                    <button
-                      type="button"
-                      onClick={() => removeTestCase(index)}
-                      className="text-xs font-medium text-zinc-500 transition hover:text-rose-600"
-                    >
-                      删除
-                    </button>
-                  </div>
+                <Card key={`${testCase.id ?? "new"}-${index}`} className="border border-zinc-200/80 bg-zinc-50 shadow-none">
+                  <Card.Content className="space-y-3 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="flat">{testCase.isSample === 1 ? "样例" : "隐藏"}</Badge>
+                        <span className="text-sm font-medium text-zinc-900">#{index + 1}</span>
+                      </div>
+                      <Button size="sm" variant="light" color="danger" onPress={() => removeTestCase(index)}>
+                        删除
+                      </Button>
+                    </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <label className="space-y-1.5">
-                      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">类型</span>
-                      <select
-                        value={testCase.isSample}
-                        onChange={(event) => updateTestCase(index, { isSample: Number(event.target.value) })}
-                        className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-rose-400"
-                      >
-                        <option value={1}>样例</option>
-                        <option value={0}>隐藏用例</option>
-                      </select>
-                    </label>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="space-y-2">
+                        <span className="text-sm font-medium text-zinc-700">类型</span>
+                        <select
+                          value={testCase.isSample}
+                          onChange={(event) => updateTestCase(index, { isSample: Number(event.target.value) })}
+                          className={selectClassName()}
+                        >
+                          <option value={1}>样例</option>
+                          <option value={0}>隐藏</option>
+                        </select>
+                      </label>
+                      <label className="space-y-2">
+                        <span className="text-sm font-medium text-zinc-700">状态</span>
+                        <select
+                          value={testCase.status}
+                          onChange={(event) => updateTestCase(index, { status: Number(event.target.value) })}
+                          className={selectClassName()}
+                        >
+                          <option value={1}>启用</option>
+                          <option value={0}>禁用</option>
+                        </select>
+                      </label>
+                    </div>
 
-                    <label className="space-y-1.5">
-                      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">状态</span>
-                      <select
-                        value={testCase.status}
-                        onChange={(event) => updateTestCase(index, { status: Number(event.target.value) })}
-                        className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-rose-400"
-                      >
-                        <option value={1}>启用</option>
-                        <option value={0}>禁用</option>
-                      </select>
-                    </label>
-
-                    <label className="space-y-1.5 sm:col-span-2">
-                      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">输入</span>
-                      <textarea
-                        value={testCase.inputData}
-                        onChange={(event) => updateTestCase(index, { inputData: event.target.value })}
-                        className="min-h-[100px] w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 font-mono text-xs outline-none transition focus:border-rose-400"
-                      />
-                    </label>
-
-                    <label className="space-y-1.5 sm:col-span-2">
-                      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">输出</span>
-                      <textarea
-                        value={testCase.expectedOutput}
-                        onChange={(event) => updateTestCase(index, { expectedOutput: event.target.value })}
-                        className="min-h-[100px] w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 font-mono text-xs outline-none transition focus:border-rose-400"
-                      />
-                    </label>
-
-                    <label className="space-y-1.5">
-                      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">分值</span>
-                      <input
-                        type="number"
-                        value={testCase.score}
-                        onChange={(event) => updateTestCase(index, { score: Number(event.target.value) })}
-                        className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-rose-400"
-                      />
-                    </label>
-                  </div>
-                </div>
+                    <TextArea
+                      label="输入"
+                      labelPlacement="outside"
+                      value={testCase.inputData}
+                      onChange={(event) => updateTestCase(index, { inputData: event.target.value })}
+                      minRows={4}
+                    />
+                    <TextArea
+                      label="输出"
+                      labelPlacement="outside"
+                      value={testCase.expectedOutput}
+                      onChange={(event) => updateTestCase(index, { expectedOutput: event.target.value })}
+                      minRows={4}
+                    />
+                    <Input
+                      label="分值"
+                      labelPlacement="outside"
+                      type="number"
+                      value={String(testCase.score)}
+                      onChange={(event) => updateTestCase(index, { score: Number(event.target.value) })}
+                    />
+                  </Card.Content>
+                </Card>
               ))}
-            </div>
-          </section>
+            </Card.Content>
+          </Card>
 
-          <section className="rounded-[2rem] border border-zinc-200/80 bg-white p-6 shadow-sm">
-            <div className="space-y-3">
-              <button
-                type="submit"
-                disabled={isPending}
-                className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isPending ? "保存中…" : mode === "create" ? "创建题目" : "保存修改"}
-              </button>
+          <Card className="border border-zinc-200/80 bg-white shadow-none">
+            <Card.Content className="space-y-3 p-4">
+              <Button type="submit" color="primary" isLoading={isPending}>
+                {mode === "create" ? "创建题目" : "保存修改"}
+              </Button>
               {mode === "edit" ? (
-                <button
-                  type="button"
-                  onClick={onDelete}
-                  disabled={isPending}
-                  className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                >
+                <Button type="button" color="danger" variant="flat" isDisabled={isPending} onPress={onDelete}>
                   删除题目
-                </button>
+                </Button>
               ) : null}
-            </div>
 
-            {error ? (
-              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            ) : null}
+              {error ? (
+                <Card className="border border-rose-200 bg-rose-50 shadow-none">
+                  <Card.Content className="p-3 text-sm text-rose-700">{error}</Card.Content>
+                </Card>
+              ) : null}
 
-            {notice ? (
-              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {notice}
-              </div>
-            ) : null}
-
-            <div className="mt-5 rounded-2xl bg-zinc-100 px-4 py-4 text-sm leading-6 text-zinc-600">
-              这版后台已经具备真实 CRUD 能力：
-              <br />
-              1. 保存题目基础配置
-              <br />
-              2. 保存题面与提示
-              <br />
-              3. 批量覆盖测试用例配置
-            </div>
-          </section>
+              {notice ? (
+                <Card className="border border-emerald-200 bg-emerald-50 shadow-none">
+                  <Card.Content className="p-3 text-sm text-emerald-700">{notice}</Card.Content>
+                </Card>
+              ) : null}
+            </Card.Content>
+          </Card>
         </div>
       </form>
     </div>

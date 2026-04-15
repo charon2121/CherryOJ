@@ -43,6 +43,7 @@ const iconClass = "h-[18px] w-[18px]";
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const mounted = useClientMounted();
+  const effectiveTheme = mounted ? theme ?? "system" : "system";
 
   const cycle = () => {
     const order = ["light", "dark", "system"] as const;
@@ -52,7 +53,11 @@ export default function ThemeToggle() {
   };
 
   const label =
-    theme === "light" ? "浅色主题" : theme === "dark" ? "深色主题" : "跟随系统";
+    effectiveTheme === "light"
+      ? "浅色主题"
+      : effectiveTheme === "dark"
+        ? "深色主题"
+        : "跟随系统";
 
   return (
     <Button
@@ -66,9 +71,9 @@ export default function ThemeToggle() {
     >
       {!mounted ? (
         <span className="block h-[18px] w-[18px]" />
-      ) : theme === "light" ? (
+      ) : effectiveTheme === "light" ? (
         <SunIcon className={iconClass} />
-      ) : theme === "dark" ? (
+      ) : effectiveTheme === "dark" ? (
         <MoonIcon className={iconClass} />
       ) : (
         <MonitorIcon className={iconClass} />

@@ -6,7 +6,7 @@ import { useAuthStore } from "@/lib/auth/auth.store";
 import { Link } from "@heroui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const nav = [
   { label: "题库", href: "/problems" },
@@ -16,6 +16,7 @@ const nav = [
 ];
 
 export default function OJChrome({ children }: { children: React.ReactNode }) {
+  
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -149,7 +150,6 @@ export default function OJChrome({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-
       {children}
     </div>
   );
