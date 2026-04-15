@@ -305,3 +305,23 @@ src/
   - 关注 theme、state、layout、RSC/Client 边界、重构顺序
 
 二者不是替代关系，而是“总设计 + 专题设计”的关系。
+
+## 11. 当前落地状态（2026-04）
+
+截至当前仓库状态，前端架构重构已经完成以下第一阶段与第二阶段起步工作：
+
+- 已将 `globals.css` 收敛为唯一全局样式入口，并由其统一引入 `theme.css`。
+- 已将 HeroUI 主题编辑器导出的 `theme.css` 收敛为 token 层，不再重复承担全局入口职责。
+- 已新增服务端 session helper：
+  - `src/lib/session/get-current-user.ts`
+  - `src/lib/session/require-admin.ts`
+- 已将后台 `admin/layout.tsx` 改为服务端管理员校验入口。
+- 已新增 `src/app/(main)/layout.tsx`，用户端首页与题库页开始共享 route layout。
+- 已通过 `AuthSnapshot.client.tsx` 把服务端用户快照下发给客户端 store。
+- 已移除 `AuthProvider` 启动时主动拉 `/me` 的旧式初始化逻辑。
+
+当前仍在持续推进的工作：
+
+- 将更多用户端页面从“页面级 Client Chrome 包裹”改造为“Server Layout + Client Leaf”。
+- 继续压缩 `auth.store` 的职责，逐步把权限判断迁回服务端。
+- 将题目详情、工作台、后台编辑页进一步拆成 server shell 与 client interaction leaf。

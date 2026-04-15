@@ -1,5 +1,5 @@
 import OJHome from "@/components/oj/OJHome.client";
 
-export default async function Home() {
+export default function Home() {
   return <OJHome />;
 }

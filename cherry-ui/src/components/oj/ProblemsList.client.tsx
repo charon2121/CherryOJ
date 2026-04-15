@@ -1,7 +1,6 @@
 "use client";
 
 import type { Difficulty, Problem } from "@/data/problems";
-import OJChrome from "@/components/oj/OJChrome.client";
 import { Badge, Button, Input, Link } from "@heroui/react";
 import { useMemo, useState } from "react";
 
@@ -32,8 +31,7 @@ export default function ProblemsList({ initialProblems }: ProblemsListProps) {
   }, [initialProblems, query, difficulty]);
 
   return (
-    <OJChrome>
-      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
         <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
           <Link href="/" className="no-underline hover:text-rose-600 dark:hover:text-rose-400">
             CherryOJ
@@ -140,6 +138,5 @@ export default function ProblemsList({ initialProblems }: ProblemsListProps) {
           )}
         </div>
       </main>
-    </OJChrome>
   );
 }

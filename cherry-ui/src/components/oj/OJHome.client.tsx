@@ -1,6 +1,5 @@
 "use client";
 
-import OJChrome from "@/components/oj/OJChrome.client";
 import { Badge, Button, Card, Input, Link } from "@heroui/react";
 
 const stats = [
@@ -54,7 +53,7 @@ function statusBadge(status: string) {
 
 export default function OJHome() {
   return (
-    <OJChrome>
+    <>
       <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <section className="mb-16 text-center sm:mb-20 sm:text-left">
           <h1 className="mb-4 text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl dark:text-white">
@@ -232,6 +231,6 @@ export default function OJHome() {
       <footer className="border-t border-zinc-200 py-8 text-center text-sm text-zinc-500 dark:border-white/[0.06] dark:text-zinc-600">
         <p>CherryOJ · 现代在线评测前端示意 · 可与任意后端评测机对接</p>
       </footer>
-    </OJChrome>
+    </>
   );
 }

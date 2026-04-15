@@ -1,5 +1,7 @@
 "use client";
 
+import type { UserProfile } from "@/lib/api/endpoints/auth.client";
+import { logout as logoutApi } from "@/lib/api/endpoints/auth.client";
 import CherryIcon from "@/components/icon/cherry";
 import ThemeToggle from "@/components/theme/ThemeToggle.client";
 import { useAuthStore } from "@/lib/auth/auth.store";
@@ -15,11 +17,15 @@ const nav = [
   { label: "讨论", href: "#discuss" },
 ];
 
-export default function OJChrome({ children }: { children: React.ReactNode }) {
-  
+export default function OJChrome({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: UserProfile | null;
+}) {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const setUser = useAuthStore((s) => s.setUser);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -40,7 +46,8 @@ export default function OJChrome({ children }: { children: React.ReactNode }) {
 
   async function onLogout() {
     setMenuOpen(false);
-    await logout();
+    await logoutApi();
+    setUser(null);
     router.replace("/login");
     router.refresh();
   }
