@@ -142,20 +142,20 @@ export default function OJChrome({
                 ) : null}
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
                 <NextLink
                   href="/login"
-                  className="hidden h-8 items-center justify-center rounded-lg px-3 text-sm font-medium text-zinc-700 no-underline transition-colors hover:bg-zinc-200/70 sm:inline-flex dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                  className="hidden h-8 items-center justify-center rounded-lg bg-[color:var(--surface-secondary)] px-3 text-sm font-medium text-[color:var(--foreground)] no-underline transition-colors hover:bg-[color:var(--surface-tertiary)] sm:inline-flex"
                 >
                   登录
                 </NextLink>
                 <NextLink
                   href="/register"
-                  className="inline-flex h-8 items-center justify-center rounded-lg bg-rose-600 px-3 text-sm font-medium text-white no-underline hover:bg-rose-500"
+                  className="inline-flex h-8 items-center justify-center rounded-lg bg-[color:var(--accent)] px-3 text-sm font-medium text-[color:var(--accent-foreground)] no-underline transition-opacity hover:opacity-90"
                 >
                   注册
                 </NextLink>
-              </>
+              </div>
             )}
           </div>
         </div>

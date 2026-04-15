@@ -1,5 +1,7 @@
 "use client";
 
+import { Tag } from "@/components/ui/Tag";
+import { authInputClassName } from "@/components/auth/auth-field-styles";
 import { ApiError } from "@/lib/api/core";
 import { loginWithPassword } from "@/lib/api/endpoints/auth.client";
 import { sanitizeReturnUrl } from "@/lib/auth/return-url";
@@ -17,9 +19,9 @@ const schema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const setUser = useAuthStore((s) => s.setUser);
-  const user = useAuthStore((s) => s.user);
-  const initialized = useAuthStore((s) => s.initialized);
+  const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((state) => state.user);
+  const initialized = useAuthStore((state) => state.initialized);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,14 +42,15 @@ export default function LoginPage() {
     router.refresh();
   }, [initialized, user, router, safeReturn]);
 
-  async function onSubmit(e: React.SubmitEvent) {
-    e.preventDefault();
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setError(null);
     const parsed = schema.safeParse({ username, password });
     if (!parsed.success) {
       setError(parsed.error.flatten().formErrors[0] ?? "请检查输入");
       return;
     }
+
     setLoading(true);
     try {
       const profile = await loginWithPassword(parsed.data);
@@ -66,64 +69,84 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="border border-zinc-200/80 bg-white/90 p-6 shadow-sm backdrop-blur-sm dark:border-white/[0.08] dark:bg-zinc-900/80">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">登录</h1>
-      </div>
-      <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-        {error ? (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
-            {error}
-          </p>
-        ) : null}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="login-username" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            用户名或邮箱
-          </label>
-          <Input
-            id="login-username"
-            name="username"
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={loading}
-            className="w-full"
-          />
+    <Card className="border border-[color:var(--border)] bg-[color:var(--surface)] shadow-none">
+      <Card.Header className="space-y-4 border-b border-[color:var(--border)] px-6 py-6">
+        <div className="space-y-3">
+          <Tag size="md">登录</Tag>
+          <div className="space-y-2">
+            <Card.Title className="text-2xl font-semibold tracking-tight text-[color:var(--foreground)]">
+              登录 CherryOJ
+            </Card.Title>
+            <Card.Description className="text-sm leading-6 text-[color:var(--muted)]">
+              登录后将直接返回题库或你刚才访问的目标页面。认证页不做多余装饰，只确保信息清晰、状态稳定。
+            </Card.Description>
+          </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="login-password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            密码
+      </Card.Header>
+
+      <Card.Content className="space-y-5 px-6 py-6">
+        <form className="space-y-4" onSubmit={onSubmit}>
+          {error ? (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200">
+              {error}
+            </div>
+          ) : null}
+
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">用户名或邮箱</span>
+            <Input
+              id="login-username"
+              name="username"
+              autoComplete="username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              disabled={loading}
+              className={authInputClassName}
+            />
           </label>
-          <Input
-            id="login-password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            className="w-full"
-          />
+
+          <label className="block space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-medium text-[color:var(--foreground)]">密码</span>
+              <Link href="/forgot-password" className="text-xs no-underline hover:text-[color:var(--accent)]">
+                忘记密码
+              </Link>
+            </div>
+            <Input
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              disabled={loading}
+              className={authInputClassName}
+            />
+          </label>
+
+          <Button
+            type="submit"
+            isDisabled={loading}
+            className="h-11 w-full bg-[color:var(--accent)] text-[color:var(--accent-foreground)] hover:opacity-90"
+          >
+            {loading ? "登录中…" : "登录"}
+          </Button>
+        </form>
+
+        <div className="space-y-3 border-t border-[color:var(--border)] pt-4">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-[color:var(--muted)]">
+            <span>还没有账号？</span>
+            <Link href={registerHref} className="font-medium no-underline hover:text-[color:var(--accent)]">
+              去注册
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Tag bordered={false}>登录成功后自动跳转</Tag>
+            <Tag bordered={false}>支持 returnUrl</Tag>
+          </div>
         </div>
-        <Button
-          type="submit"
-          className="bg-rose-600 text-white hover:bg-rose-500"
-          isDisabled={loading}
-        >
-          {loading ? "登录中…" : "登录"}
-        </Button>
-      </form>
-      <div className="mt-6 flex flex-col gap-2 text-center text-sm">
-        <Link href={registerHref} className="text-rose-600 no-underline hover:underline dark:text-rose-400">
-          没有账号？去注册
-        </Link>
-        <Link
-          href="/forgot-password"
-          className="text-zinc-600 no-underline hover:underline dark:text-zinc-400"
-        >
-          忘记密码
-        </Link>
-      </div>
+      </Card.Content>
     </Card>
   );
 }

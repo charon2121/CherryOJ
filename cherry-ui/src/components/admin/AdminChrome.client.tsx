@@ -3,7 +3,8 @@
 import type { UserProfile } from "@/lib/api/endpoints/auth.client";
 import { logout as logoutApi } from "@/lib/api/endpoints/auth.client";
 import { useAuthStore } from "@/lib/auth/auth.store";
-import { Badge, Button, Card, Link } from "@heroui/react";
+import { Tag } from "@/components/ui/Tag";
+import { Button, Card, Link } from "@heroui/react";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -76,9 +77,7 @@ export default function AdminChrome({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Badge variant="soft" color="success">
-                    Admin
-                  </Badge>
+                  <Tag tone="success">Admin</Tag>
                 </div>
 
                 <div className="flex gap-2">

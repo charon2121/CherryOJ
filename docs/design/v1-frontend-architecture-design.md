@@ -3,10 +3,11 @@
 ## 1. 文档信息
 
 - 版本：V1
-- 对应问题文档：`docs/problem/v1-core-oj.md`
-- 对应需求文档：`docs/prd/v1-core-oj-prd.md`
-- 对应结构文档：`docs/structure/v1-core-oj-structure.md`
-- 相关专题文档：`docs/frontend/auth-requirements-and-design.md`
+- 对应问题文档 [docs/problem/v1-core-oj.md](./../problem/v1-core-oj.md)
+- 对应需求文档：[docs/prd/v1-core-oj-prd.md](./../prd/v1-core-oj-prd.md)
+- 对应结构文档：[docs/structure/v1-core-oj-structure.md](./../structure/v1-core-oj-structure.md)`
+- 相关专题文档：[docs/frontend/auth-requirements-and-design.md](./../frontend/auth-requirements-and-design.md)
+- 相关视觉规范：[前端视觉规范文档.md](./../../前端视觉规范文档.md)
 - 文档类型：Design Layer（定义前端技术实现、分层与演进路径）
 
 ## 2. 设计目标
@@ -43,7 +44,7 @@ V1 的前端设计目标有四个：
 ## 4.2 Theme First
 
 - HeroUI 主题编辑器导出的 `theme.css` 作为设计令牌源。
-- 页面样式优先消费语义 token，而不是直接堆砌原始颜色 class。
+- 页面样式优先消费语义 token。
 - `globals.css` 是唯一全局样式入口，`theme.css` 只负责 token。
 
 ## 4.3 State Minimal
@@ -57,6 +58,12 @@ V1 的前端设计目标有四个：
 - 用户端与管理端使用不同 layout。
 - 管理端权限检查应优先在服务端 layout 完成。
 - 页面级 Client Component 不应再包裹整站 chrome。
+
+## 4.5 Visual Spec Driven
+
+- 页面重制必须遵守统一视觉规范，而不是按单页审美临时发挥。
+- 用户端与管理端共享同一套 token、字体、间距和组件密度规则。
+- 首页、题库页、题目页、后台页应在不同页面模板下保持同一产品家族感。
 
 ## 5. 分层设计
 
@@ -80,20 +87,17 @@ V1 的前端设计目标有四个：
 前端组件分成四类：
 
 1. Server Shell
-   - 负责布局、取数、权限边界和数据注入。
-   - 典型对象：`page.tsx`、`layout.tsx`、部分 server wrapper。
-
+  - 负责布局、取数、权限边界和数据注入。
+  - 典型对象：`page.tsx`、`layout.tsx`、部分 server wrapper。
 2. Client Leaf
-   - 负责交互、编辑器、菜单、Tabs、表单联动。
-   - 典型对象：题目工作区、登录表单、主题切换、下拉菜单。
-
+  - 负责交互、编辑器、菜单、Tabs、表单联动。
+  - 典型对象：题目工作区、登录表单、主题切换、下拉菜单。
 3. Presentational UI
-   - 不感知 API、路由或 store，只负责 UI 呈现。
-   - 可按情况做成 Server 或 Client。
-
+  - 不感知 API、路由或 store，只负责 UI 呈现。
+  - 可按情况做成 Server 或 Client。
 4. Domain Widget
-   - 面向具体业务，如题目列表、题目编辑器、提交结果面板。
-   - 内部可再拆分 server data wrapper 与 client interactive leaf。
+  - 面向具体业务，如题目列表、题目编辑器、提交结果面板。
+  - 内部可再拆分 server data wrapper 与 client interactive leaf。
 
 ## 5.3 API 层
 
@@ -102,14 +106,11 @@ V1 的前端设计目标有四个：
 - `server.ts`
   - 用于 Server Components / Server Layout / Server Actions 调后端
   - 从 Cookie 透传 JWT
-
 - `client.ts`
   - 用于浏览器交互请求
   - 统一处理 401/403 与网络错误
-
 - `endpoints/*.ts`
   - 默认作为服务端 endpoint 包装
-
 - `endpoints/*.client.ts`
   - 明确浏览器侧调用
 
@@ -218,40 +219,6 @@ V1 的前端设计目标有四个：
 - 管理端：在 `admin/layout.tsx` 服务端完成管理员校验，不再只靠客户端跳转。
 - 需要登录的做题交互：逐步把 `RequireAuth.client.tsx` 替换为 server-side session 注入 + 叶子交互守卫。
 
-## 7. 页面重构策略
-
-整体重构不建议一次性推翻全部页面，而应按“先地基、后页面”的顺序推进。
-
-### 阶段 1：基础设施
-
-- 收敛 `globals.css` / `theme.css`
-- 建立服务端 session helper
-- 管理端 layout 改为服务端权限入口
-
-### 阶段 2：布局重构
-
-- 新增 `(main)/layout.tsx`
-- 把 `OJChrome` 从页面级 client 包裹移到 route layout
-- 用户端导航改为 server snapshot + client leaf 混合模式
-
-### 阶段 3：页面下沉
-
-- 题库列表页：Server Page + Client Filter Leaf
-- 题目详情页：Server Data Wrapper + Client Workspace Leaf
-- 首页：Server Page 为主，互动块单独 client 化
-
-### 阶段 4：状态收缩
-
-- 从业务 store 中剥离主数据
-- 只保留 UI store 与 editor draft store
-- auth store 从“启动加载器”退化为“客户端补充层”
-
-### 阶段 5：后台完善
-
-- 管理列表页继续保持服务端取数
-- 新建 / 编辑页按 server shell + client form 分层
-- 逐步拆出可复用的 admin table / admin form / admin chrome 组件
-
 ## 8. 目录建议
 
 建议逐步收敛为如下结构：
@@ -293,48 +260,15 @@ src/
 - 页面骨架默认由 Server Components 提供。
 - 大部分业务数据不再通过客户端全局 store 启动拉取。
 - Zustand 的职责明显收缩到 UI state / draft state。
+- 页面重制遵守 [前端视觉规范文档.md](./../../前端视觉规范文档.md) 中定义的视觉基线，不再出现一页一个风格。
 
 ## 10. 与现有专题文档的关系
 
 - `docs/frontend/auth-requirements-and-design.md`
   - 继续负责认证专题需求与设计
   - 关注登录、登出、401/403、鉴权规则
-
 - 本文档
   - 负责前端整体架构与分层
   - 关注 theme、state、layout、RSC/Client 边界、重构顺序
 
 二者不是替代关系，而是“总设计 + 专题设计”的关系。
-
-## 11. 当前落地状态（2026-04）
-
-截至当前仓库状态，前端架构重构已经完成以下第一阶段与第二阶段起步工作：
-
-- 已将 `globals.css` 收敛为唯一全局样式入口，并由其统一引入 `theme.css`。
-- 已将 HeroUI 主题编辑器导出的 `theme.css` 收敛为 token 层，不再重复承担全局入口职责。
-- 已新增服务端 session helper：
-  - `src/lib/session/get-current-user.ts`
-  - `src/lib/session/require-admin.ts`
-- 已将后台 `admin/layout.tsx` 改为服务端管理员校验入口。
-- 已新增 `src/app/(main)/layout.tsx`，用户端首页与题库页开始共享 route layout。
-- 已通过 `AuthSnapshot.client.tsx` 把服务端用户快照下发给客户端 store。
-- 已移除 `AuthProvider` 启动时主动拉 `/me` 的旧式初始化逻辑。
-- 已将题目工作台页的登录校验前移到服务端页面入口，客户端工作区组件不再承担首层权限判断。
-- 已将后台新建 / 编辑页调整为 server shell + client form leaf 结构。
-- 已移除已脱离主流程的 `RequireAuth.client.tsx` 与 `RequireAdmin.client.tsx`。
-- 已新增执行层任务清单：`docs/tasks/v1-frontend-architecture-refactor.json`。
-- 已将首页主组件从 `.client` 组件收敛为服务端组件，开始正式推进页面分解阶段。
-- 已将题库页拆分为 `ProblemsPageShell`（server shell）与 `ProblemsFilterPanel.client`（client filter leaf）。
-- 已将题目详情页拆分为 `ProblemPageShell`（题面 server shell）与 `ProblemEditorPane.client`（提交交互 leaf）。
-- 已新增 `src/lib/state/problem-editor.store.ts`，将题目编辑器草稿从组件局部状态收敛为专用 draft store，并支持持久化。
-- 已新增 `src/lib/state/admin-problem-draft.store.ts`，将后台题目编辑页未提交内容收敛为专用 draft store，并支持恢复与重置。
-- 已新增 `src/lib/state/ui.store.ts`，用于承载顶栏用户菜单等纯 UI 状态。
-- 已新增验证文档：`docs/tests/v1-frontend-architecture-validation.md`。
-- `cherry-ui/package.json` 已补充 `typecheck` 脚本，作为前端架构收尾阶段的基础自动化校验。
-- 第五阶段收尾已完成：验证文档、遗留清理、`lint + typecheck` 均已通过。
-
-当前仍在持续推进的工作：
-
-- 将更多用户端页面从“页面级 Client Chrome 包裹”改造为“Server Layout + Client Leaf”。
-- 继续压缩 `auth.store` 的职责，逐步把权限判断迁回服务端。
-- 将题目详情、工作台、后台编辑页进一步拆成 server shell 与 client interaction leaf。

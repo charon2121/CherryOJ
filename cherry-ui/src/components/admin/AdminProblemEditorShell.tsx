@@ -1,5 +1,5 @@
 import type { AdminProblemDetail } from "@/lib/api/admin-types";
-import { Badge } from "@heroui/react";
+import { Tag } from "@/components/ui/Tag";
 
 import AdminProblemForm from "./AdminProblemForm.client";
 
@@ -53,14 +53,14 @@ export default function AdminProblemEditorShell({
         <div className="flex flex-wrap gap-2">
           {mode === "edit" && problem ? (
             <>
-              <Badge variant="soft">{statusLabel(problem.status)}</Badge>
-              <Badge variant="soft">{judgeModeLabel(problem.judgeMode)}</Badge>
-              {updatedAt ? <Badge variant="soft">更新于 {updatedAt}</Badge> : null}
+              <Tag>{statusLabel(problem.status)}</Tag>
+              <Tag>{judgeModeLabel(problem.judgeMode)}</Tag>
+              {updatedAt ? <Tag>更新于 {updatedAt}</Tag> : null}
             </>
           ) : (
             <>
-              <Badge variant="soft">未持久化</Badge>
-              <Badge variant="soft">创建模式</Badge>
+              <Tag>未持久化</Tag>
+              <Tag>创建模式</Tag>
             </>
           )}
         </div>

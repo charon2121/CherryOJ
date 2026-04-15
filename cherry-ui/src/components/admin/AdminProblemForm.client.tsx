@@ -7,7 +7,8 @@ import {
   updateAdminProblem,
 } from "@/lib/api/endpoints/admin-problems.client";
 import { useAdminProblemDraftStore } from "@/lib/state/admin-problem-draft.store";
-import { Badge, Button, Card, Input, TextArea } from "@heroui/react";
+import { Tag } from "@/components/ui/Tag";
+import { Button, Card, Input, TextArea } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 
@@ -305,9 +306,9 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            <Badge variant="soft">用例 {stats.total}</Badge>
-            <Badge variant="soft">样例 {stats.samples}</Badge>
-            <Badge variant="soft">隐藏 {stats.hidden}</Badge>
+            <Tag>用例 {stats.total}</Tag>
+            <Tag>样例 {stats.samples}</Tag>
+            <Tag>隐藏 {stats.hidden}</Tag>
           </div>
           <Card className="border border-zinc-200/80 bg-white shadow-none">
             <Card.Header className="flex flex-row items-center justify-between gap-3 border-b border-zinc-200/80 px-4 py-3">
@@ -322,7 +323,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
                   <Card.Content className="space-y-3 p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant="soft">{testCase.isSample === 1 ? "样例" : "隐藏"}</Badge>
+                        <Tag>{testCase.isSample === 1 ? "样例" : "隐藏"}</Tag>
                         <span className="text-sm font-medium text-zinc-900">#{index + 1}</span>
                       </div>
                       <Button size="sm" variant="danger-soft" onPress={() => removeTestCase(index)}>

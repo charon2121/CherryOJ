@@ -1,12 +1,13 @@
 "use client";
 
 import CodeEditor from "@/components/oj/CodeEditor.client";
+import { Tag } from "@/components/ui/Tag";
 import type { LangId, Problem } from "@/data/problems";
 import { LANG_LABEL } from "@/data/problems";
-import type { SubmissionDetailResponse } from "@/lib/api/oj-types";
 import { getSubmission, submitCode } from "@/lib/api/endpoints/submissions.client";
+import type { SubmissionDetailResponse } from "@/lib/api/oj-types";
 import { useProblemEditorStore } from "@/lib/state/problem-editor.store";
-import { Badge, Button, Spinner, TextArea } from "@heroui/react";
+import { Button, Spinner, TextArea } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ProblemEditorPaneProps {
@@ -85,7 +86,7 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
   const mockRun = useCallback(async () => {
     setPending("run");
     setRunResult(null);
-    await new Promise((r) => setTimeout(r, 700));
+    await new Promise((resolve) => setTimeout(resolve, 700));
     setRunResult(
       "编译成功\n\n样例测试（示意）\n────────────────\n" +
         `输入：\n${customInput.trim() || "（空）"}\n\n` +
@@ -121,7 +122,7 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
             .join("\n"),
         );
       } else {
-        await new Promise((r) => setTimeout(r, 900));
+        await new Promise((resolve) => setTimeout(resolve, 900));
         setRunResult(
           `已提交（示意）\n语言：${LANG_LABEL[lang]}\n题目：${problem.id}\n\n` +
             "当前页面使用的是本地 mock 数据，未绑定后端题目 ID。",
@@ -144,96 +145,106 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
   }, [clearDraft, defaultLanguage, problem.examples, problem.templates, problemKey]);
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col bg-white dark:bg-[#0d0d0f]">
-      <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200/90 px-3 py-2 dark:border-white/[0.08] sm:px-4">
-        <label className="sr-only" htmlFor="oj-lang">
-          编程语言
-        </label>
-        <select
-          id="oj-lang"
-          value={lang}
-          onChange={(e) => onLangChange(e.target.value as LangId)}
-          className="h-9 max-w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none ring-rose-500/40 focus:ring-2 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-100"
-        >
-          {languageOptions.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <Button variant="tertiary" size="sm" isDisabled={busy} onPress={resetDraft}>
-            重置草稿
-          </Button>
-          <Button variant="secondary" size="sm" isDisabled={busy} onPress={() => void mockRun()} className="min-w-[96px]">
-            {pending === "run" ? (
-              <span className="inline-flex items-center gap-2">
-                <Spinner size="sm" />
-                运行中
-              </span>
-            ) : (
-              "运行"
-            )}
-          </Button>
-          <Button
-            size="sm"
-            isDisabled={busy}
-            onPress={() => void mockSubmit()}
-            className="min-w-[96px] bg-emerald-600 text-white hover:bg-emerald-500"
-          >
-            {pending === "submit" ? (
-              <span className="inline-flex items-center gap-2">
-                <Spinner size="sm" />
-                提交中
-              </span>
-            ) : (
-              "提交"
-            )}
-          </Button>
+    <section className="min-w-0 bg-[color:var(--surface)]">
+      <div className="flex h-full min-h-[420px] flex-col">
+        <div className="border-b border-[color:var(--border)] px-4 py-3">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm">
+              <div className="border-b-2 border-[color:var(--accent)] pb-2 font-medium text-[color:var(--foreground)]">
+                代码
+              </div>
+              <div className="pb-2 text-[color:var(--muted)]">提交结果</div>
+              <div className="pb-2 text-[color:var(--muted)]">调试输入</div>
+            </div>
+            <Tag bordered={false}>草稿自动保存</Tag>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="oj-lang">
+              编程语言
+            </label>
+            <select
+              id="oj-lang"
+              value={lang}
+              onChange={(event) => onLangChange(event.target.value as LangId)}
+              className="h-9 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-sm text-[color:var(--foreground)] outline-none ring-[color:var(--accent)]/25 focus:ring-2"
+            >
+              {languageOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              <Button variant="tertiary" size="sm" isDisabled={busy} onPress={resetDraft}>
+                重置
+              </Button>
+              <Button variant="secondary" size="sm" isDisabled={busy} onPress={() => void mockRun()}>
+                {pending === "run" ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner size="sm" />
+                    运行中
+                  </span>
+                ) : (
+                  "运行"
+                )}
+              </Button>
+              <Button
+                size="sm"
+                isDisabled={busy}
+                onPress={() => void mockSubmit()}
+                className="bg-[color:var(--accent)] text-[color:var(--accent-foreground)] hover:opacity-90"
+              >
+                {pending === "submit" ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner size="sm" />
+                    提交中
+                  </span>
+                ) : (
+                  "提交"
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-0 border-b border-zinc-200/80 bg-zinc-50/80 px-3 py-2 text-xs text-zinc-500 dark:border-white/[0.08] dark:bg-white/[0.02] dark:text-zinc-400 sm:grid-cols-4 sm:px-4">
-        <div>题目：{problem.id}</div>
-        <div>时限：{problem.timeLimit}</div>
-        <div>内存：{problem.memoryLimit}</div>
-        <div>语言：{languageOptions.find((option) => option.id === lang)?.label ?? lang}</div>
-      </div>
-
-      <div className="min-h-[min(420px,45vh)] flex-1 min-h-0 lg:min-h-0">
-        <div className="h-full min-h-[280px] px-0 sm:px-1 sm:pt-1">
-          <CodeEditor language={lang} value={code} onChange={setCode} />
+        <div className="flex-1 border-b border-[color:var(--border)]">
+          <div className="h-full min-h-[360px] px-0 sm:px-1 sm:pt-1">
+            <CodeEditor language={lang} value={code} onChange={setCode} />
+          </div>
         </div>
-      </div>
 
-      <div className="border-t border-zinc-200/90 dark:border-white/[0.08]">
-        <div className="grid gap-4 p-3 lg:grid-cols-[minmax(0,1fr)_320px] sm:p-4">
-          <div>
-            <div className="mb-1.5 text-xs font-medium text-zinc-500">自定义输入</div>
+        <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="border-b border-[color:var(--border)] px-4 py-4 xl:border-b-0 xl:border-r">
+            <div className="mb-2 text-sm font-medium text-[color:var(--foreground)]">自定义输入</div>
             <TextArea
               value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-              className="min-h-[120px] w-full font-mono text-xs"
+              onChange={(event) => setCustomInput(event.target.value)}
+              className="min-h-[132px] w-full font-mono text-xs"
               placeholder="粘贴或编辑样例输入…"
             />
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-4 px-4 py-4">
             <div>
-              <div className="mb-1.5 text-xs font-medium text-zinc-500">运行结果</div>
-              <pre className="min-h-[120px] w-full overflow-auto rounded-lg border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs whitespace-pre-wrap text-zinc-800 dark:border-white/[0.08] dark:bg-zinc-950/60 dark:text-zinc-200">
-                {runResult ?? "运行或提交后将在此显示输出（当前为前端示意）。"}
+              <div className="mb-2 text-sm font-medium text-[color:var(--foreground)]">运行结果</div>
+              <pre className="min-h-[132px] overflow-auto rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 font-mono text-xs leading-6 whitespace-pre-wrap text-[color:var(--foreground)]">
+                {runResult ?? "运行或提交后将在此显示结果。当前页面仍保留前端示意输出。"}
               </pre>
             </div>
 
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50/70 p-3 dark:border-white/[0.08] dark:bg-white/[0.03]">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">最近提交</div>
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-[color:var(--foreground)]">最近提交</div>
               {latestSummary ? (
-                <div className="space-y-2 text-sm">
+                <div className="space-y-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 text-sm">
                   <div className="flex items-center gap-2">
-                    <Badge color={latestSummary.result === "AC" ? "success" : "danger"}>{latestSummary.result}</Badge>
-                    <span className="text-zinc-700 dark:text-zinc-300">{latestSummary.status}</span>
+                    <Tag tone={latestSummary.result === "AC" ? "success" : "danger"}>
+                      {latestSummary.result}
+                    </Tag>
+                    <span className="text-[color:var(--foreground)]">{latestSummary.status}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-zinc-500">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-[color:var(--muted)]">
                     <span>语言：{latestSummary.language}</span>
                     <span>用时：{latestSummary.time}</span>
                     <span>内存：{latestSummary.memory}</span>
@@ -241,7 +252,7 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">当前会话还没有提交记录。</p>
+                <p className="text-sm leading-6 text-[color:var(--muted)]">当前会话还没有提交记录。</p>
               )}
             </div>
           </div>

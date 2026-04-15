@@ -1,13 +1,25 @@
 "use client";
 
+import { Tag } from "@/components/ui/Tag";
 import type { Difficulty, Problem } from "@/data/problems";
-import { Badge, Button, Input, Link } from "@heroui/react";
+import { Button, Input, Link } from "@heroui/react";
 import { useMemo, useState } from "react";
 
-function diffPillClass(d: Difficulty) {
-  if (d === "入门") return "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300";
-  if (d === "进阶") return "bg-amber-500/15 text-amber-900 dark:text-amber-300";
-  return "bg-rose-500/15 text-rose-900 dark:text-rose-300";
+function difficultyTone(difficulty: Difficulty) {
+  if (difficulty === "入门") return "success" as const;
+  if (difficulty === "进阶") return "warning" as const;
+  return "danger" as const;
+}
+
+function statusTone(acceptancePct: number) {
+  if (acceptancePct >= 70) return "success" as const;
+  if (acceptancePct >= 35) return "warning" as const;
+  return "danger" as const;
+}
+
+function excerpt(text: string) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  return normalized.length > 56 ? `${normalized.slice(0, 56)}...` : normalized;
 }
 
 const FILTERS: Array<Difficulty | "全部"> = ["全部", "入门", "进阶", "提高"];
@@ -21,93 +33,120 @@ export default function ProblemsFilterPanel({
   const [difficulty, setDifficulty] = useState<Difficulty | "全部">("全部");
 
   const rows = useMemo(() => {
-    return initialProblems.filter((p) => {
-      if (difficulty !== "全部" && p.difficulty !== difficulty) return false;
+    return initialProblems.filter((problem) => {
+      if (difficulty !== "全部" && problem.difficulty !== difficulty) return false;
       const q = query.trim().toLowerCase();
       if (!q) return true;
-      const hay = `${p.id} ${p.title} ${p.tags.join(" ")}`.toLowerCase();
-      return hay.includes(q);
+      const haystack = `${problem.id} ${problem.title} ${problem.tags.join(" ")} ${problem.description}`.toLowerCase();
+      return haystack.includes(q);
     });
   }, [difficulty, initialProblems, query]);
 
+  const activeLabel = difficulty === "全部" ? "全部难度" : difficulty;
+
   return (
-    <>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            共 {rows.length} 题 · 搜索题号、标题或知识点
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 border-b border-[color:var(--border)] pb-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold tracking-tight text-[color:var(--foreground)]">题目索引</h2>
+          <p className="text-sm text-[color:var(--muted)]">
+            共 {rows.length} 题命中当前筛选。标题、题号、知识点和题面摘要都会参与搜索。
           </p>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+
+        <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-center">
           <Input
-            placeholder="搜索题目…"
+            placeholder="搜索题号、标题、标签或题面摘要"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full min-w-[240px] sm:w-72"
+            onChange={(event) => setQuery(event.target.value)}
+            className="w-full lg:w-[340px]"
             aria-label="搜索题目"
           />
+          <Button
+            variant="tertiary"
+            onPress={() => {
+              setQuery("");
+              setDifficulty("全部");
+            }}
+            isDisabled={!query && difficulty === "全部"}
+          >
+            清空筛选
+          </Button>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
+      <div className="flex flex-wrap items-center gap-2">
+        {FILTERS.map((filter) => (
           <Button
-            key={f}
+            key={filter}
             size="sm"
-            variant={difficulty === f ? "primary" : "tertiary"}
-            className={difficulty === f ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900" : undefined}
-            onPress={() => setDifficulty(f)}
+            variant={difficulty === filter ? "primary" : "tertiary"}
+            className={difficulty === filter ? "bg-[color:var(--foreground)] text-[color:var(--background)]" : undefined}
+            onPress={() => setDifficulty(filter)}
           >
-            {f}
+            {filter}
           </Button>
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-sm dark:border-white/[0.08] dark:bg-[#0c0c0e] dark:shadow-none">
+      <div className="flex flex-wrap gap-2">
+        <Tag>{rows.length} 条结果</Tag>
+        <Tag>{activeLabel}</Tag>
+        {query ? <Tag tone="accent">关键词：{query}</Tag> : null}
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)]">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[980px] text-left text-sm">
             <thead>
-              <tr className="border-b border-zinc-200 bg-zinc-50/90 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-zinc-500">
+              <tr className="border-b border-[color:var(--border)] bg-[color:var(--surface-secondary)] text-xs uppercase tracking-[0.12em] text-[color:var(--muted)]">
                 <th className="px-4 py-3 font-medium">状态</th>
                 <th className="px-4 py-3 font-medium">题号</th>
                 <th className="px-4 py-3 font-medium">题目</th>
                 <th className="px-4 py-3 font-medium">难度</th>
                 <th className="px-4 py-3 font-medium">通过率</th>
+                <th className="px-4 py-3 font-medium">时限</th>
+                <th className="px-4 py-3 font-medium">内存</th>
                 <th className="px-4 py-3 font-medium">标签</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((p) => (
+              {rows.map((problem) => (
                 <tr
-                  key={p.id}
-                  className="border-b border-zinc-100 transition-colors hover:bg-zinc-50/90 dark:border-white/[0.05] dark:hover:bg-white/[0.04]"
+                  key={problem.id}
+                  className="border-b border-[color:var(--border)] transition-colors last:border-b-0 hover:bg-[color:var(--surface-secondary)]"
                 >
                   <td className="px-4 py-3">
-                    <span className="inline-block h-2 w-2 rounded-full bg-zinc-200 dark:bg-zinc-700" title="未尝试" />
+                    <Tag tone={statusTone(problem.acceptancePct)} bordered={false}>
+                      {problem.acceptancePct >= 70 ? "稳" : problem.acceptancePct >= 35 ? "中" : "难"}
+                    </Tag>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">{p.id}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-[color:var(--muted)]">{problem.id}</td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/problems/${p.routeId ?? p.id}`}
-                      className="font-medium text-zinc-900 no-underline hover:text-rose-600 dark:text-zinc-100 dark:hover:text-rose-400"
-                    >
-                      {p.title}
-                    </Link>
+                    <div className="space-y-1">
+                      <Link
+                        href={`/problems/${problem.routeId ?? problem.id}`}
+                        className="font-medium text-[color:var(--foreground)] no-underline hover:text-[color:var(--accent)]"
+                      >
+                        {problem.title}
+                      </Link>
+                      <p className="max-w-[38rem] text-xs leading-5 text-[color:var(--muted)]">
+                        {excerpt(problem.description)}
+                      </p>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${diffPillClass(p.difficulty)}`}>
-                      {p.difficulty}
-                    </span>
+                    <Tag tone={difficultyTone(problem.difficulty)}>{problem.difficulty}</Tag>
                   </td>
-                  <td className="px-4 py-3 tabular-nums text-zinc-600 dark:text-zinc-400">
-                    {p.acceptancePct.toFixed(1)}%
+                  <td className="px-4 py-3 tabular-nums text-[color:var(--foreground)]">
+                    {problem.acceptancePct.toFixed(1)}%
                   </td>
+                  <td className="px-4 py-3 text-[color:var(--muted)]">{problem.timeLimit}</td>
+                  <td className="px-4 py-3 text-[color:var(--muted)]">{problem.memoryLimit}</td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-1">
-                      {p.tags.map((t) => (
-                        <Badge key={t} variant="soft" className="text-[11px]">
-                          {t}
-                        </Badge>
+                    <div className="flex max-w-[240px] flex-wrap gap-1">
+                      {problem.tags.map((tag) => (
+                        <Tag key={tag}>{tag}</Tag>
                       ))}
                     </div>
                   </td>
@@ -116,10 +155,14 @@ export default function ProblemsFilterPanel({
             </tbody>
           </table>
         </div>
+
         {rows.length === 0 ? (
-          <p className="px-4 py-12 text-center text-sm text-zinc-500">没有匹配的题目，试试其它关键词或难度。</p>
+          <div className="px-4 py-14 text-center">
+            <div className="text-sm font-medium text-[color:var(--foreground)]">没有匹配的题目</div>
+            <p className="mt-1 text-sm text-[color:var(--muted)]">试试换一个关键词，或者先切回“全部难度”。</p>
+          </div>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
