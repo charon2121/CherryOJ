@@ -319,6 +319,10 @@ src/
 - 已新增 `src/app/(main)/layout.tsx`，用户端首页与题库页开始共享 route layout。
 - 已通过 `AuthSnapshot.client.tsx` 把服务端用户快照下发给客户端 store。
 - 已移除 `AuthProvider` 启动时主动拉 `/me` 的旧式初始化逻辑。
+- 已将题目工作台页的登录校验前移到服务端页面入口，客户端工作区组件不再承担首层权限判断。
+- 已将后台新建 / 编辑页调整为 server shell + client form leaf 结构。
+- 已移除已脱离主流程的 `RequireAuth.client.tsx` 与 `RequireAdmin.client.tsx`。
+- 已新增执行层任务清单：`docs/tasks/v1-frontend-architecture-refactor.json`。
 
 当前仍在持续推进的工作：
 

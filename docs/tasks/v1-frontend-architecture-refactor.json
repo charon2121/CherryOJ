@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "name": "v1-frontend-architecture-refactor",
+  "scope": "cherry-ui",
+  "based_on": [
+    "docs/design/v1-frontend-architecture-design.md",
+    "docs/frontend/auth-requirements-and-design.md"
+  ],
+  "phases": [
+    {
+      "name": "phase-1-foundation",
+      "status": "completed",
+      "goals": [
+        "收敛 globals.css 为唯一全局样式入口",
+        "将 theme.css 收敛为 HeroUI token 层",
+        "建立 server session helper"
+      ]
+    },
+    {
+      "name": "phase-2-layout-and-session",
+      "status": "in_progress",
+      "goals": [
+        "启用 (main) route layout 承载用户端 chrome",
+        "后台 layout 改为服务端管理员权限入口",
+        "移除客户端启动 refreshUser 作为会话真相源",
+        "把题目工作台登录校验迁移到服务端页面入口"
+      ]
+    },
+    {
+      "name": "phase-3-page-decomposition",
+      "status": "pending",
+      "goals": [
+        "将首页、题库页、题目页进一步拆成 server shell + client leaf",
+        "将后台编辑页继续拆分为 server shell + client form leaf",
+        "减少页面级 client chrome 包裹"
+      ]
+    },
+    {
+      "name": "phase-4-state-contraction",
+      "status": "pending",
+      "goals": [
+        "清理不再承载主流程的 auth store 职责",
+        "引入专用 UI store 与 editor draft store",
+        "让业务主数据回归服务端获取"
+      ]
+    },
+    {
+      "name": "phase-5-polish-and-validation",
+      "status": "pending",
+      "goals": [
+        "补充布局和权限相关的测试场景",
+        "清理遗留组件和重复路径",
+        "完成文档与代码的一致性复核"
+      ]
+    }
+  ]
+}

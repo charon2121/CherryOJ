@@ -1,4 +1,4 @@
-import AdminProblemForm from "@/components/admin/AdminProblemForm.client";
+import AdminProblemEditorShell from "@/components/admin/AdminProblemEditorShell";
 import { getAdminProblem } from "@/lib/api/endpoints/admin-problems";
 import { notFound } from "next/navigation";
 
@@ -20,5 +20,5 @@ export default async function AdminProblemEditPage({ params }: Props) {
   if (!problem) {
     notFound();
   }
-  return <AdminProblemForm mode="edit" problem={problem} />;
+  return <AdminProblemEditorShell mode="edit" problem={problem} />;
 }

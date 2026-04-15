@@ -1,5 +1,5 @@
-import AdminProblemForm from "@/components/admin/AdminProblemForm.client";
+import AdminProblemEditorShell from "@/components/admin/AdminProblemEditorShell";
 
 export default function AdminProblemNewPage() {
-  return <AdminProblemForm mode="create" />;
+  return <AdminProblemEditorShell mode="create" />;
 }

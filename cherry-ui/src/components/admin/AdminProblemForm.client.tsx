@@ -163,22 +163,7 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-            {mode === "create" ? "新建题目" : `编辑 ${problem?.problemCode ?? ""}`}
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">维护基础配置、题面和测试用例。</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="flat">用例 {stats.total}</Badge>
-          <Badge variant="flat">样例 {stats.samples}</Badge>
-          <Badge variant="flat">隐藏 {stats.hidden}</Badge>
-        </div>
-      </div>
-
-      <form onSubmit={onSubmit} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+    <form onSubmit={onSubmit} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           <Card className="border border-zinc-200/80 bg-white shadow-none">
             <Card.Header className="border-b border-zinc-200/80 px-4 py-3">
@@ -294,6 +279,11 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
         </div>
 
         <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="flat">用例 {stats.total}</Badge>
+            <Badge variant="flat">样例 {stats.samples}</Badge>
+            <Badge variant="flat">隐藏 {stats.hidden}</Badge>
+          </div>
           <Card className="border border-zinc-200/80 bg-white shadow-none">
             <Card.Header className="flex flex-row items-center justify-between gap-3 border-b border-zinc-200/80 px-4 py-3">
               <Card.Title className="text-base text-zinc-900">测试用例</Card.Title>
@@ -393,6 +383,5 @@ export default function AdminProblemForm({ mode, problem }: AdminProblemFormProp
           </Card>
         </div>
       </form>
-    </div>
   );
 }

@@ -2,6 +2,7 @@ import ProblemWorkspace from "@/components/oj/ProblemWorkspace.client";
 import { getProblemById } from "@/data/problems";
 import { getProblem as getProblemApi } from "@/lib/api/endpoints/problems";
 import { adaptProblemDetail } from "@/lib/oj/problem-adapter";
+import { requireUser } from "@/lib/session/require-user";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProblemPage({ params }: Props) {
   const { id } = await params;
+  await requireUser(`/problems/${id}`);
   let problem = getProblemById(id);
   if (!problem && /^\d+$/.test(id)) {
     try {
