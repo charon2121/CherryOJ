@@ -1,6 +1,6 @@
 "use client";
 
-import { create } from "zustand";
+import {create} from "zustand";
 
 type UiState = {
   ojUserMenuOpen: boolean;
@@ -11,7 +11,7 @@ type UiState = {
 
 export const useUiStore = create<UiState>((set) => ({
   ojUserMenuOpen: false,
-  setOjUserMenuOpen: (open) => set({ ojUserMenuOpen: open }),
-  toggleOjUserMenu: () => set((state) => ({ ojUserMenuOpen: !state.ojUserMenuOpen })),
-  closeOjUserMenu: () => set({ ojUserMenuOpen: false }),
+  setOjUserMenuOpen: (open) => set({ojUserMenuOpen: open}),
+  toggleOjUserMenu: () => set((state) => ({ojUserMenuOpen: !state.ojUserMenuOpen})),
+  closeOjUserMenu: () => set({ojUserMenuOpen: false}),
 }));
