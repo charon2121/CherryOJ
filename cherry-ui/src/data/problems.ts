@@ -47,7 +47,10 @@ export const PROBLEMS: Problem[] = [
         output: "5",
       },
     ],
-    constraints: ["−10^9 ≤ a, b ≤ 10^9", "所有运算在 32 位有符号整数范围内完成。"],
+    constraints: [
+      "−10^9 ≤ a, b ≤ 10^9",
+      "所有运算在 32 位有符号整数范围内完成。",
+    ],
     timeLimit: "1 s",
     memoryLimit: "256 MB",
     templates: {
@@ -117,7 +120,10 @@ fn main() {
         output: "5\n10",
       },
     ],
-    constraints: ["1 ≤ n, q ≤ 2×10^5", "数组元素与赋值取值在 32 位有符号整数范围内。"],
+    constraints: [
+      "1 ≤ n, q ≤ 2×10^5",
+      "数组元素与赋值取值在 32 位有符号整数范围内。",
+    ],
     timeLimit: "2 s",
     memoryLimit: "512 MB",
     templates: {
@@ -163,7 +169,8 @@ if __name__ == "__main__":
       {
         input: "3 3 1 3\n1 2\n2 3\n1 3",
         output: "1 2",
-        explanation: "最短距离为 1，路径有 1→3 与 1→2→3 两条（若距离相同则都计入）。",
+        explanation:
+          "最短距离为 1，路径有 1→3 与 1→2→3 两条（若距离相同则都计入）。",
       },
     ],
     constraints: ["1 ≤ n ≤ 10^5", "0 ≤ m ≤ 2×10^5"],
@@ -202,7 +209,8 @@ if __name__ == "__main__":
     difficulty: "进阶",
     acceptancePct: 35.4,
     tags: ["动态规划"],
-    description: "0-1 背包的变种：每件物品最多选一次，求恰好装满容量为 W 的方案是否存在。",
+    description:
+      "0-1 背包的变种：每件物品最多选一次，求恰好装满容量为 W 的方案是否存在。",
     examples: [
       { input: "3 5\n2 3 4", output: "Yes" },
       { input: "2 3\n4 5", output: "No" },
@@ -243,7 +251,8 @@ if __name__ == "__main__":
     difficulty: "入门",
     acceptancePct: 67.1,
     tags: ["字符串", "哈希"],
-    description: "判断两个子串是否相等，使用多项式哈希实现 O(1) 比较（题面示意）。",
+    description:
+      "判断两个子串是否相等，使用多项式哈希实现 O(1) 比较（题面示意）。",
     examples: [{ input: "abcde\n1 3\n3 5", output: "No" }],
     constraints: ["字符串长度 ≤ 10^5"],
     timeLimit: "1 s",
