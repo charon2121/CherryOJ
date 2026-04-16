@@ -7,6 +7,7 @@
 - 对应需求文档：[docs/prd/v1-core-oj-prd.md](./../prd/v1-core-oj-prd.md)
 - 对应结构文档：[docs/structure/v1-core-oj-structure.md](./../structure/v1-core-oj-structure.md)`
 - 相关专题文档：[docs/frontend/auth-requirements-and-design.md](./../frontend/auth-requirements-and-design.md)
+- 相关后台重建设计：[docs/design/v1-admin-frontend-redesign.md](./v1-admin-frontend-redesign.md)
 - 相关视觉规范：[前端视觉规范文档.md](./../../前端视觉规范文档.md)
 - 文档类型：Design Layer（定义前端技术实现、分层与演进路径）
 
