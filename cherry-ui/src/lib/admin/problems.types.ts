@@ -3,5 +3,5 @@ export type AdminProblemListParams = {
   status?: number | "all";
   difficulty?: number | "all";
   page?: number;
-  size?: number;
+  pageSize?: number;
 };

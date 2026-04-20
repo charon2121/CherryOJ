@@ -1,3 +1,6 @@
 [mcp_servers.heroui-react]
 command = "npx"
 args = ["-y", "@heroui/react-mcp@latest"]
+
+[mcp_servers.heroui-react.tools.get_component_source_code]
+approval_mode = "approve"

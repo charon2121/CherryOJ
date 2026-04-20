@@ -39,6 +39,7 @@ export default async function ProblemPage({ params }: Props) {
     }
   }
   if (!problem) notFound();
+  
   return (
     <Suspense
       fallback={

@@ -10,7 +10,6 @@ import {
   List,
   LogOut,
   Plus,
-  Settings,
   SquareArrowOutUpRight,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -103,23 +102,6 @@ export default function AdminSidebar({ user }: { user: UserProfile }) {
                   active={pathname === item.href || (item.href === "/admin/problems" && pathname === "/admin")}
                 />
               ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="mb-2 px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--muted)]">
-              System
-            </div>
-            <div className="w-full space-y-1">
-              <div className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-[color:var(--muted)] opacity-60">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg">
-                  <Settings className="h-4 w-4" strokeWidth={1.85} />
-                </span>
-                <span>
-                  <span className="block leading-4">系统配置</span>
-                  <span className="block text-[11px] leading-4">Coming soon</span>
-                </span>
-              </div>
             </div>
           </div>
         </div>

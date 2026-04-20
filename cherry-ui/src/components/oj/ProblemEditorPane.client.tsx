@@ -8,10 +8,22 @@ import { getSubmission, submitCode } from "@/lib/api/endpoints/submissions.clien
 import type { SubmissionDetailResponse } from "@/lib/api/oj-types";
 import { useProblemEditorStore } from "@/lib/state/problem-editor.store";
 import { Button, Spinner, TextArea } from "@heroui/react";
+import { ChevronDown, ChevronUp, Play, RotateCcw, Send } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ProblemEditorPaneProps {
   problem: Problem;
+}
+
+type ResultTab = "cases" | "run" | "submit";
+
+function panelTabClassName(active: boolean) {
+  return [
+    "inline-flex h-9 items-center border-b-2 px-1 text-sm font-medium transition-colors",
+    active
+      ? "border-[color:var(--accent)] text-[color:var(--foreground)]"
+      : "border-transparent text-[color:var(--muted)] hover:text-[color:var(--foreground)]",
+  ].join(" ");
 }
 
 export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
@@ -34,6 +46,8 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
   const [pending, setPending] = useState<"idle" | "run" | "submit">("idle");
   const [runResult, setRunResult] = useState<string | null>(null);
   const [latestSubmission, setLatestSubmission] = useState<SubmissionDetailResponse | null>(null);
+  const [resultTab, setResultTab] = useState<ResultTab>("cases");
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
   const busy = pending !== "idle";
 
   useEffect(() => {
@@ -43,6 +57,7 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
     setCustomInput(draft?.customInput ?? problem.examples[0]?.input ?? "");
     setRunResult(null);
     setLatestSubmission(null);
+    setResultTab("cases");
   }, [defaultLanguage, draft, problem.examples, problem.templates, problemKey]);
 
   useEffect(() => {
@@ -85,19 +100,23 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
 
   const mockRun = useCallback(async () => {
     setPending("run");
+    setResultTab("run");
+    setPanelCollapsed(false);
     setRunResult(null);
     await new Promise((resolve) => setTimeout(resolve, 700));
     setRunResult(
-      "编译成功\n\n样例测试（示意）\n────────────────\n" +
+      "编译成功\n\n样例测试\n────────────────\n" +
         `输入：\n${customInput.trim() || "（空）"}\n\n` +
         `输出：\n${problem.examples[0]?.output ?? "—"}\n\n` +
-        "实际评测需接入后端沙箱。",
+        "状态：完成",
     );
     setPending("idle");
   }, [customInput, problem.examples]);
 
   const mockSubmit = useCallback(async () => {
     setPending("submit");
+    setResultTab("submit");
+    setPanelCollapsed(false);
     setRunResult(null);
     setLatestSubmission(null);
     try {
@@ -124,8 +143,8 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
       } else {
         await new Promise((resolve) => setTimeout(resolve, 900));
         setRunResult(
-          `已提交（示意）\n语言：${LANG_LABEL[lang]}\n题目：${problem.id}\n\n` +
-            "当前页面使用的是本地 mock 数据，未绑定后端题目 ID。",
+          `已提交\n语言：${LANG_LABEL[lang]}\n题目：${problem.id}\n\n` +
+            "状态：等待判题详情",
         );
       }
     } catch (error) {
@@ -142,19 +161,19 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
     setCode(problem.templates[defaultLanguage]);
     setCustomInput(problem.examples[0]?.input ?? "");
     setRunResult(null);
+    setLatestSubmission(null);
+    setResultTab("cases");
   }, [clearDraft, defaultLanguage, problem.examples, problem.templates, problemKey]);
 
   return (
-    <section className="min-w-0 bg-[color:var(--surface)]">
-      <div className="flex h-full min-h-[420px] flex-col">
-        <div className="border-b border-[color:var(--border)] px-4 py-3">
+    <section className="flex min-h-[720px] min-w-0 flex-col bg-[color:var(--surface)] xl:min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="shrink-0 border-b border-[color:var(--border)] px-4 py-3">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm">
               <div className="border-b-2 border-[color:var(--accent)] pb-2 font-medium text-[color:var(--foreground)]">
                 代码
               </div>
-              <div className="pb-2 text-[color:var(--muted)]">提交结果</div>
-              <div className="pb-2 text-[color:var(--muted)]">调试输入</div>
             </div>
             <Tag bordered={false}>草稿自动保存</Tag>
           </div>
@@ -178,7 +197,10 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
 
             <div className="ml-auto flex flex-wrap items-center gap-2">
               <Button variant="tertiary" size="sm" isDisabled={busy} onPress={resetDraft}>
-                重置
+                <span className="inline-flex items-center gap-1.5">
+                  <RotateCcw size={14} aria-hidden />
+                  重置
+                </span>
               </Button>
               <Button variant="secondary" size="sm" isDisabled={busy} onPress={() => void mockRun()}>
                 {pending === "run" ? (
@@ -187,7 +209,10 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
                     运行中
                   </span>
                 ) : (
-                  "运行"
+                  <span className="inline-flex items-center gap-1.5">
+                    <Play size={14} aria-hidden />
+                    运行
+                  </span>
                 )}
               </Button>
               <Button
@@ -202,61 +227,97 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
                     提交中
                   </span>
                 ) : (
-                  "提交"
+                  <span className="inline-flex items-center gap-1.5">
+                    <Send size={14} aria-hidden />
+                    提交
+                  </span>
                 )}
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 border-b border-[color:var(--border)]">
-          <div className="h-full min-h-[360px] px-0 sm:px-1 sm:pt-1">
+        <div className="min-h-[320px] flex-1 border-b border-[color:var(--border)]">
+          <div className="h-full px-0 sm:px-1 sm:pt-1">
             <CodeEditor language={lang} value={code} onChange={setCode} />
           </div>
         </div>
 
-        <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="border-b border-[color:var(--border)] px-4 py-4 xl:border-b-0 xl:border-r">
-            <div className="mb-2 text-sm font-medium text-[color:var(--foreground)]">自定义输入</div>
-            <TextArea
-              value={customInput}
-              onChange={(event) => setCustomInput(event.target.value)}
-              className="min-h-[132px] w-full font-mono text-xs"
-              placeholder="粘贴或编辑样例输入…"
-            />
-          </div>
-
-          <div className="space-y-4 px-4 py-4">
-            <div>
-              <div className="mb-2 text-sm font-medium text-[color:var(--foreground)]">运行结果</div>
-              <pre className="min-h-[132px] overflow-auto rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 font-mono text-xs leading-6 whitespace-pre-wrap text-[color:var(--foreground)]">
-                {runResult ?? "运行或提交后将在此显示结果。当前页面仍保留前端示意输出。"}
-              </pre>
+        <div className="shrink-0 border-b border-[color:var(--border)] px-4">
+          <div className="flex h-11 items-center justify-between gap-3">
+            <div className="flex items-center gap-5">
+              <button type="button" className={panelTabClassName(resultTab === "cases")} onClick={() => setResultTab("cases")}>
+                测试用例
+              </button>
+              <button type="button" className={panelTabClassName(resultTab === "run")} onClick={() => setResultTab("run")}>
+                运行结果
+              </button>
+              <button type="button" className={panelTabClassName(resultTab === "submit")} onClick={() => setResultTab("submit")}>
+                提交结果
+              </button>
             </div>
-
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-[color:var(--foreground)]">最近提交</div>
-              {latestSummary ? (
-                <div className="space-y-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Tag tone={latestSummary.result === "AC" ? "success" : "danger"}>
-                      {latestSummary.result}
-                    </Tag>
-                    <span className="text-[color:var(--foreground)]">{latestSummary.status}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-[color:var(--muted)]">
-                    <span>语言：{latestSummary.language}</span>
-                    <span>用时：{latestSummary.time}</span>
-                    <span>内存：{latestSummary.memory}</span>
-                    <span>题目：{problem.id}</span>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm leading-6 text-[color:var(--muted)]">当前会话还没有提交记录。</p>
-              )}
-            </div>
+            <Button variant="tertiary" size="sm" onPress={() => setPanelCollapsed((value) => !value)}>
+              <span className="inline-flex items-center gap-1.5">
+                {panelCollapsed ? <ChevronUp size={14} aria-hidden /> : <ChevronDown size={14} aria-hidden />}
+                {panelCollapsed ? "展开" : "收起"}
+              </span>
+            </Button>
           </div>
         </div>
+
+        {!panelCollapsed ? (
+          <div className="h-[236px] shrink-0 overflow-y-auto px-4 py-4">
+            {resultTab === "cases" ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-sm font-medium text-[color:var(--foreground)]">自定义输入</div>
+                  <Tag bordered={false}>样例 {problem.examples.length ? 1 : 0}</Tag>
+                </div>
+                <TextArea
+                  value={customInput}
+                  onChange={(event) => setCustomInput(event.target.value)}
+                  className="min-h-[154px] w-full font-mono text-xs"
+                  placeholder="粘贴或编辑样例输入…"
+                />
+              </div>
+            ) : null}
+
+            {resultTab === "run" ? (
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-[color:var(--foreground)]">运行结果</div>
+                <pre className="min-h-[154px] overflow-auto rounded-md border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 font-mono text-xs leading-6 whitespace-pre-wrap text-[color:var(--foreground)]">
+                  {runResult ?? "运行后将在此显示样例或自定义输入的执行结果。"}
+                </pre>
+              </div>
+            ) : null}
+
+            {resultTab === "submit" ? (
+              <div className="space-y-4">
+                <div className="text-sm font-medium text-[color:var(--foreground)]">提交结果</div>
+                {latestSummary ? (
+                  <div className="space-y-3 rounded-md border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Tag tone={latestSummary.result === "AC" ? "success" : "danger"}>
+                        {latestSummary.result}
+                      </Tag>
+                      <span className="text-[color:var(--foreground)]">{latestSummary.status}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-[color:var(--muted)]">
+                      <span>语言：{latestSummary.language}</span>
+                      <span>用时：{latestSummary.time}</span>
+                      <span>内存：{latestSummary.memory}</span>
+                      <span>题目：{problem.id}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <pre className="min-h-[154px] overflow-auto rounded-md border border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-3 font-mono text-xs leading-6 whitespace-pre-wrap text-[color:var(--foreground)]">
+                    {runResult ?? "提交后将在此显示判题状态、用时、内存和错误信息。"}
+                  </pre>
+                )}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </section>
   );

@@ -26,11 +26,11 @@ type ThemeState = {
 };
 
 type ThemeAction =
-  | { type: "initialize"; theme: ThemeSetting; systemTheme: ResolvedTheme }
   | { type: "set-theme"; theme: ThemeSetting }
   | { type: "set-system-theme"; systemTheme: ResolvedTheme };
 
 const STORAGE_KEY = "cherry-ui-theme";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
@@ -48,21 +48,21 @@ function applyTheme(resolvedTheme: ResolvedTheme) {
   const root = document.documentElement;
   root.classList.toggle("dark", resolvedTheme === "dark");
   root.dataset.theme = resolvedTheme;
+  root.style.colorScheme = resolvedTheme;
 }
 
 function reducer(state: ThemeState, action: ThemeAction): ThemeState {
-  if (action.type === "initialize") {
-    return {
-      theme: action.theme,
-      systemTheme: action.systemTheme,
-      hydrated: true,
-    };
-  }
   if (action.type === "set-theme") {
+    if (state.theme === action.theme) {
+      return state;
+    }
     return {
       ...state,
       theme: action.theme,
     };
+  }
+  if (state.systemTheme === action.systemTheme) {
+    return state;
   }
   return {
     ...state,
@@ -70,25 +70,28 @@ function reducer(state: ThemeState, action: ThemeAction): ThemeState {
   };
 }
 
-export default function ThemeProvider({ children }: { children: ReactNode }) {
+export default function ThemeProvider({
+  children,
+  initialTheme,
+  initialResolvedTheme,
+}: {
+  children: ReactNode;
+  initialTheme: ThemeSetting;
+  initialResolvedTheme: ResolvedTheme;
+}) {
   const [state, dispatch] = useReducer(reducer, {
-    theme: "system",
-    systemTheme: "light",
-    hydrated: false,
+    theme: initialTheme,
+    systemTheme: initialResolvedTheme,
+    hydrated: true,
   });
 
   const resolvedTheme = state.theme === "system" ? state.systemTheme : state.theme;
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    const nextTheme: ThemeSetting =
-      saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
-    dispatch({
-      type: "initialize",
-      theme: nextTheme,
-      systemTheme: getSystemTheme(),
-    });
-  }, []);
+    if (state.theme === "system") {
+      dispatch({ type: "set-system-theme", systemTheme: getSystemTheme() });
+    }
+  }, [state.theme]);
 
   useEffect(() => {
     if (!state.hydrated) {
@@ -114,6 +117,7 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
     }
     applyTheme(resolvedTheme);
     window.localStorage.setItem(STORAGE_KEY, state.theme);
+    document.cookie = `${STORAGE_KEY}=${state.theme}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
   }, [resolvedTheme, state.hydrated, state.theme]);
 
   const value = useMemo<ThemeContextValue>(
