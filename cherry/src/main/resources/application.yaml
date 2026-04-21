@@ -35,7 +35,7 @@ app:
     cookie-secure: ${APP_JWT_COOKIE_SECURE:false}
   judge:
     enabled: ${APP_JUDGE_ENABLED:true}
-    base-url: ${APP_JUDGE_BASE_URL:http://127.0.0.1:8081}
+    base-url: ${APP_JUDGE_BASE_URL:http://127.0.0.1:6060}
     connect-timeout-ms: ${APP_JUDGE_CONNECT_TIMEOUT_MS:2000}
     poll-interval-ms: ${APP_JUDGE_POLL_INTERVAL_MS:200}
     max-wait-ms: ${APP_JUDGE_MAX_WAIT_MS:15000}

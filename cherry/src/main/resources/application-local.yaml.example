@@ -17,7 +17,7 @@ spring:
 # app:
 #   judge:
 #     enabled: true
-#     base-url: http://127.0.0.1:8081
+#     base-url: http://127.0.0.1:6060
 #     connect-timeout-ms: 2000
 #     poll-interval-ms: 200
 #     max-wait-ms: 15000
