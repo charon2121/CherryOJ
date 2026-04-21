@@ -3,7 +3,7 @@
 ## 1. 文档信息
 
 - 版本：V1
-- 所属系统：`cherry-ui`
+- 所属系统：`cherry-web`
 - 对应总设计：[docs/design/v1-frontend-architecture-design.md](./v1-frontend-architecture-design.md)
 - 对应视觉规范：[前端视觉规范文档.md](./../../前端视觉规范文档.md)
 - 文档类型：Design Layer（管理后台从 0 重建设计）

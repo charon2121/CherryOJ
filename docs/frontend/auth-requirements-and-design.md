@@ -13,7 +13,7 @@
 
 本节用 **TODO 清单** 对照「文档描述的能力」与「当前实现」，便于迭代时勾选与评审。`[x]` 表示已在仓库中落地；`[ ]` 表示尚未完成或仅部分完成。
 
-### 2.1 前端（`cherry-ui`）
+### 2.1 前端（`cherry-web`）
 
 - 浏览器请求封装 `clientFetch`，`credentials: "include"`，可携带 Cookie。
 - 认证相关接口封装：`loginWithPassword`、`registerAccount`、`fetchCurrentUser`、`logout`、`requestPasswordReset`（重置仍为后端占位能力）。
@@ -95,7 +95,7 @@
   - 后端返回清除 JWT Cookie 的响应头。
   - 前端据此清理本地用户状态并跳转到登录页。
 
-## 4.3 前端设计（`cherry-ui`）
+## 4.3 前端设计（`cherry-web`）
 
 ### 4.3.1 全局认证状态层
 

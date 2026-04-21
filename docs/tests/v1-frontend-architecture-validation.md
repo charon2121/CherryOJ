@@ -8,7 +8,7 @@
 
 ## 2. 目标
 
-本文档用于验证 `cherry-ui` 的前端架构重构是否真正落地，而不是只完成了表面页面改写。
+本文档用于验证 `cherry-web` 的前端架构重构是否真正落地，而不是只完成了表面页面改写。
 
 本轮验证关注四件事：
 
@@ -89,7 +89,7 @@
 当前最基础的前端校验命令：
 
 ```bash
-cd cherry-ui
+cd cherry-web
 npm run lint
 npm run typecheck
 ```

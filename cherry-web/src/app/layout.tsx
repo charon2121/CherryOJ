@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 type ThemeSetting = "light" | "dark" | "system";
 type ResolvedTheme = "light" | "dark";
 
-const THEME_COOKIE_NAME = "cherry-ui-theme";
+const THEME_COOKIE_NAME = "cherry-web-theme";
 
 function parseTheme(value?: string): ThemeSetting {
   return value === "light" || value === "dark" || value === "system" ? value : "system";

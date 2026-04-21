@@ -29,7 +29,7 @@ type ThemeAction =
   | { type: "set-theme"; theme: ThemeSetting }
   | { type: "set-system-theme"; systemTheme: ResolvedTheme };
 
-const STORAGE_KEY = "cherry-ui-theme";
+const STORAGE_KEY = "cherry-web-theme";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);

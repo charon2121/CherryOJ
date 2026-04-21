@@ -1,6 +1,6 @@
 # CherryOJ Judge Interface Contract v1
 
-本文档定义 `cherry-ui`、`cherry`、`cherry-judge` 在提交判题链路上的接口边界。
+本文档定义 `cherry-web`、`cherry`、`cherry-judge` 在提交判题链路上的接口边界。
 
 当前约定：
 
@@ -12,7 +12,7 @@
 ## 1. 服务边界
 
 ```text
-cherry-ui
+cherry-web
   -> cherry: POST /api/submissions
   -> cherry: GET /api/submissions/{submissionId}
 
@@ -346,14 +346,14 @@ HTTP 状态：
 当前 `cherry` 采用同步提交 + 短轮询 judge 的方式：
 
 ```text
-1. cherry-ui POST /api/submissions
+1. cherry-web POST /api/submissions
 2. cherry 创建 submission，状态 PENDING
 3. cherry 读取 active test cases
 4. cherry 更新 submission 为 JUDGING
 5. cherry POST /submissions 到 cherry-judge
 6. cherry 按 poll-interval-ms 轮询 GET /submissions/{id}
 7. judge 返回 finished 后，cherry 写入 submission 和 submission_test_case_result
-8. cherry-ui 获得 CreateSubmissionResponse，再按需 GET /api/submissions/{id}
+8. cherry-web 获得 CreateSubmissionResponse，再按需 GET /api/submissions/{id}
 ```
 
 如果 judge 超时、拒绝请求、连接失败或响应无法解析，`cherry` 必须把提交终态写为 `SYSTEM_ERROR`，并为测试点写入错误信息。
