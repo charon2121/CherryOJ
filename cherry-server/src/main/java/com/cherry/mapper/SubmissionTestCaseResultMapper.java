@@ -14,6 +14,8 @@ public interface SubmissionTestCaseResultMapper {
 
     int deleteById(@Param("id") Long id);
 
+    int deleteBySubmissionId(@Param("submissionId") Long submissionId);
+
     SubmissionTestCaseResult selectById(@Param("id") Long id);
 
     List<SubmissionTestCaseResult> selectBySubmissionId(@Param("submissionId") Long submissionId);

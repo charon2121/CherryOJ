@@ -45,6 +45,10 @@
         DELETE FROM `submission_test_case_result` WHERE id = #{id}
     </delete>
 
+    <delete id="deleteBySubmissionId">
+        DELETE FROM `submission_test_case_result` WHERE submission_id = #{submissionId}
+    </delete>
+
     <select id="selectById" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>

@@ -19,22 +19,21 @@ domain::RunResult PythonRunner::Run(const domain::JudgeTask& task,
     domain::RunResult result;
 
     result.case_id = test_case.case_id;
+    result.case_no = test_case.case_no;
 
     const auto source_path = workspace_manager_.SourceFilePath(
         task.submission_id, domain::Language::kPython);
 
-    // FIXME: 这里逻辑是不是错误了，不存在怎么输入？
-    if (!std::filesystem::exists(source_path)) {
-        std::ofstream ofs(source_path);
-        ofs << task.source_code;
-        ofs.close();
-    }
+    std::ofstream ofs(source_path);
+    ofs << task.source_code;
+    ofs.close();
 
     std::vector<std::string> argv = {"python3", source_path.string()};
 
-    auto process_result =
-        process_executor_.Run(argv, test_case.input, run_timeout_ms_,
-                              source_path.parent_path().string());
+    const int64_t timeout_ms =
+        task.limit.time_limit_ms > 0 ? task.limit.time_limit_ms : run_timeout_ms_;
+    auto process_result = process_executor_.Run(
+        argv, test_case.input, timeout_ms, source_path.parent_path().string());
 
     result.exit_code = process_result.exit_code;
     result.signal = process_result.term_signal;

@@ -4,12 +4,12 @@ import CodeEditor from "@/components/oj/CodeEditor.client";
 import { Tag } from "@/components/ui/Tag";
 import type { LangId, Problem } from "@/data/problems";
 import { LANG_LABEL } from "@/data/problems";
-import { getSubmission, submitCode } from "@/lib/api/endpoints/submissions.client";
-import type { SubmissionDetailResponse } from "@/lib/api/oj-types";
+import { getSubmission, submitCode, subscribeSubmissionEvents } from "@/lib/api/endpoints/submissions.client";
+import type { SubmissionDetailResponse, SubmissionEventResponse } from "@/lib/api/oj-types";
 import { useProblemEditorStore } from "@/lib/state/problem-editor.store";
 import { Button, Spinner, TextArea } from "@heroui/react";
 import { ChevronDown, ChevronUp, Play, RotateCcw, Send } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ProblemEditorPaneProps {
   problem: Problem;
@@ -24,6 +24,24 @@ function panelTabClassName(active: boolean) {
       ? "border-[color:var(--accent)] text-[color:var(--foreground)]"
       : "border-transparent text-[color:var(--muted)] hover:text-[color:var(--foreground)]",
   ].join(" ");
+}
+
+function isTerminalSubmission(status: string) {
+  return status === "FINISHED" || status === "SYSTEM_ERROR";
+}
+
+function formatSubmissionEvent(event: SubmissionEventResponse) {
+  return [
+    `提交 #${event.submissionId}`,
+    `状态：${event.status}`,
+    `结果：${event.resultCode ?? "—"}`,
+    event.passedCases != null && event.totalCases != null
+      ? `用例：${event.passedCases} / ${event.totalCases}`
+      : null,
+    event.message ? `说明：${event.message}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
@@ -48,7 +66,15 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
   const [latestSubmission, setLatestSubmission] = useState<SubmissionDetailResponse | null>(null);
   const [resultTab, setResultTab] = useState<ResultTab>("cases");
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const submissionStreamCleanupRef = useRef<(() => void) | null>(null);
   const busy = pending !== "idle";
+
+  const closeSubmissionStream = useCallback(() => {
+    submissionStreamCleanupRef.current?.();
+    submissionStreamCleanupRef.current = null;
+  }, []);
+
+  useEffect(() => closeSubmissionStream, [closeSubmissionStream]);
 
   useEffect(() => {
     const nextLanguage = draft?.language ?? defaultLanguage;
@@ -58,7 +84,8 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
     setRunResult(null);
     setLatestSubmission(null);
     setResultTab("cases");
-  }, [defaultLanguage, draft, problem.examples, problem.templates, problemKey]);
+    closeSubmissionStream();
+  }, [closeSubmissionStream, defaultLanguage, draft, problem.examples, problem.templates, problemKey]);
 
   useEffect(() => {
     saveDraft(problemKey, {
@@ -79,8 +106,9 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
         return currentCode;
       });
       setRunResult(null);
+      closeSubmissionStream();
     },
-    [lang, problem.templates],
+    [closeSubmissionStream, lang, problem.templates],
   );
 
   const latestSummary = useMemo(() => {
@@ -113,7 +141,8 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
     setPending("idle");
   }, [customInput, problem.examples]);
 
-  const mockSubmit = useCallback(async () => {
+  const submitSolution = useCallback(async () => {
+    closeSubmissionStream();
     setPending("submit");
     setResultTab("submit");
     setPanelCollapsed(false);
@@ -127,33 +156,76 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
           languageCode: selectedLanguage?.submitValue ?? lang,
           sourceCode: code,
         });
-        const detail = await getSubmission(created.submissionId);
-        setLatestSubmission(detail);
         setRunResult(
           [
-            `提交 #${detail.id}`,
-            `状态：${detail.status}`,
-            `结果：${detail.resultCode ?? "—"}`,
-            `语言：${detail.languageCode ?? selectedLanguage?.label ?? lang}`,
-            detail.message ? `说明：${detail.message}` : null,
-          ]
-            .filter(Boolean)
-            .join("\n"),
+            `提交 #${created.submissionId}`,
+            `状态：${created.status}`,
+            `结果：${created.resultCode ?? "—"}`,
+            "连接判题事件流中…",
+          ].join("\n"),
         );
+
+        if (isTerminalSubmission(created.status)) {
+          const detail = await getSubmission(created.submissionId);
+          setLatestSubmission(detail);
+          setPending("idle");
+          return;
+        }
+
+        submissionStreamCleanupRef.current = subscribeSubmissionEvents(created.submissionId, {
+          onEvent: (event) => {
+            setRunResult(formatSubmissionEvent(event));
+            if (!isTerminalSubmission(event.status)) {
+              return;
+            }
+            closeSubmissionStream();
+            void getSubmission(event.submissionId)
+              .then((detail) => {
+                setLatestSubmission(detail);
+                setRunResult(
+                  [
+                    `提交 #${detail.id}`,
+                    `状态：${detail.status}`,
+                    `结果：${detail.resultCode ?? "—"}`,
+                    `语言：${detail.languageCode ?? selectedLanguage?.label ?? lang}`,
+                    detail.message ? `说明：${detail.message}` : null,
+                  ]
+                    .filter(Boolean)
+                    .join("\n"),
+                );
+              })
+              .catch((error) => {
+                const message = error instanceof Error ? error.message : "获取提交详情失败";
+                setRunResult(`判题完成，但获取详情失败\n\n${message}`);
+              })
+              .finally(() => setPending("idle"));
+          },
+          onError: () => {
+            closeSubmissionStream();
+            setRunResult((current) =>
+              [
+                current ?? `提交 #${created.submissionId}`,
+                "",
+                "判题事件流已断开，请稍后刷新提交详情。",
+              ].join("\n"),
+            );
+            setPending("idle");
+          },
+        });
       } else {
         await new Promise((resolve) => setTimeout(resolve, 900));
         setRunResult(
           `已提交\n语言：${LANG_LABEL[lang]}\n题目：${problem.id}\n\n` +
             "状态：等待判题详情",
         );
+        setPending("idle");
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "提交失败";
       setRunResult(`提交失败\n\n${message}`);
-    } finally {
       setPending("idle");
     }
-  }, [code, lang, languageOptions, problem.backendId, problem.id]);
+  }, [closeSubmissionStream, code, lang, languageOptions, problem.backendId, problem.id]);
 
   const resetDraft = useCallback(() => {
     clearDraft(problemKey);
@@ -163,7 +235,8 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
     setRunResult(null);
     setLatestSubmission(null);
     setResultTab("cases");
-  }, [clearDraft, defaultLanguage, problem.examples, problem.templates, problemKey]);
+    closeSubmissionStream();
+  }, [clearDraft, closeSubmissionStream, defaultLanguage, problem.examples, problem.templates, problemKey]);
 
   return (
     <section className="flex min-h-[720px] min-w-0 flex-col bg-[color:var(--surface)] xl:min-h-0">
@@ -218,7 +291,7 @@ export default function ProblemEditorPane({ problem }: ProblemEditorPaneProps) {
               <Button
                 size="sm"
                 isDisabled={busy}
-                onPress={() => void mockSubmit()}
+                onPress={() => void submitSolution()}
                 className="bg-[color:var(--accent)] text-[color:var(--accent-foreground)] hover:opacity-90"
               >
                 {pending === "submit" ? (

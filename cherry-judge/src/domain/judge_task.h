@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 #include "domain/language.h"
 #include "domain/test_case.h"
@@ -35,6 +37,7 @@ struct JudgeTask {
     std::string source_code;
     ResourceLimit limit;
     std::vector<TestCase> test_cases;
+    std::string callback_url;
 };
 
 inline void to_json(nlohmann::json& json, const JudgeTask& task) {
@@ -44,7 +47,8 @@ inline void to_json(nlohmann::json& json, const JudgeTask& task) {
                           {"language", task.language},
                           {"source_code", task.source_code},
                           {"limit", task.limit},
-                          {"test_cases", task.test_cases}};
+                          {"test_cases", task.test_cases},
+                          {"callback", {{"url", task.callback_url}}}};
 }
 
 inline void from_json(const nlohmann::json& json, JudgeTask& task) {
@@ -55,6 +59,10 @@ inline void from_json(const nlohmann::json& json, JudgeTask& task) {
     json.at("source_code").get_to(task.source_code);
     json.at("limit").get_to(task.limit);
     json.at("test_cases").get_to(task.test_cases);
+    if (json.contains("callback") && json.at("callback").contains("url") &&
+        !json.at("callback").at("url").is_null()) {
+        json.at("callback").at("url").get_to(task.callback_url);
+    }
 }
 
 }  // namespace cherry::domain

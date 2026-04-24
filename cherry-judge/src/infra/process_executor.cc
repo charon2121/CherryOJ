@@ -81,7 +81,7 @@ ProcessResult ProcessExecutor::Run(const std::vector<std::string>& argv,
 
         dup2(stdin_pipe[0], STDIN_FILENO);
         dup2(out_fd, STDOUT_FILENO);
-        dup2(out_fd, STDERR_FILENO);
+        dup2(err_fd, STDERR_FILENO);
 
         close(stdin_pipe[0]);
         close(stdin_pipe[1]);

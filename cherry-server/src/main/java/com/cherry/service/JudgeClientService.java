@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 import com.cherry.common.api.ResultCode;
 import com.cherry.common.exception.BusinessException;
 import com.cherry.config.JudgeProperties;
-import com.cherry.model.dto.judge.JudgeResultDto;
-import com.cherry.model.dto.judge.JudgeSubmissionStatusDto;
+import com.cherry.model.dto.judge.JudgeAcceptedResponseDto;
 import com.cherry.model.entity.Problem;
+import com.cherry.model.entity.ProblemLanguageLimit;
 import com.cherry.model.entity.Submission;
 import com.cherry.model.entity.TestCase;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,40 +38,31 @@ public class JudgeClientService {
                 .build();
     }
 
-    public JudgeResultDto judge(Submission submission, Problem problem, String languageCode, List<TestCase> testCases) {
+    public JudgeAcceptedResponseDto dispatch(
+            Submission submission,
+            Problem problem,
+            ProblemLanguageLimit languageLimit,
+            String languageCode,
+            List<TestCase> testCases) {
         if (!judgeProperties.isEnabled()) {
             throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge service is disabled");
         }
 
         String judgeLanguage = normalizeLanguage(languageCode);
-        submit(submission, problem, judgeLanguage, testCases);
-
-        long deadline = System.currentTimeMillis() + judgeProperties.getMaxWaitMs();
-        while (System.currentTimeMillis() <= deadline) {
-            JudgeSubmissionStatusDto status = fetchStatus(submission.getId());
-            if ("finished".equalsIgnoreCase(status.getStatus())) {
-                if (status.getResult() == null) {
-                    throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge service returned empty result");
-                }
-                return status.getResult();
-            }
-            sleepPollInterval();
-        }
-
-        throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge service polling timeout");
-    }
-
-    private void submit(Submission submission, Problem problem, String judgeLanguage, List<TestCase> testCases) {
+        String taskId = taskIdFor(submission.getId());
         Map<String, Object> payload = Map.of(
+                "task_id", taskId,
                 "submission_id", String.valueOf(submission.getId()),
                 "problem_id", String.valueOf(problem.getId()),
                 "language", judgeLanguage,
                 "source_code", submission.getSourceCode(),
-                "test_cases", testCases.stream().map(this::toJudgeTestCase).toList());
+                "limit", toJudgeLimit(problem, languageLimit),
+                "test_cases", testCases.stream().map(this::toJudgeTestCase).toList(),
+                "callback", Map.of("url", judgeProperties.getWebhookUrl()));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(buildUri("/submissions"))
-                .timeout(Duration.ofMillis(judgeProperties.getMaxWaitMs()))
+                .timeout(Duration.ofMillis(judgeProperties.getDispatchTimeoutMs()))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(writeJson(payload)))
                 .build();
@@ -81,21 +72,15 @@ public class JudgeClientService {
         if (!"queued".equalsIgnoreCase(status)) {
             throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge service rejected submission");
         }
+        try {
+            return objectMapper.treeToValue(root, JudgeAcceptedResponseDto.class);
+        } catch (JsonProcessingException ex) {
+            throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge accepted response parse failed");
+        }
     }
 
-    private JudgeSubmissionStatusDto fetchStatus(Long submissionId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(buildUri("/submissions/" + submissionId))
-                .timeout(Duration.ofMillis(judgeProperties.getMaxWaitMs()))
-                .GET()
-                .build();
-
-        JsonNode root = execute(request);
-        try {
-            return objectMapper.treeToValue(root, JudgeSubmissionStatusDto.class);
-        } catch (JsonProcessingException ex) {
-            throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge status response parse failed");
-        }
+    public String taskIdFor(Long submissionId) {
+        return submissionId + "-1";
     }
 
     private JsonNode execute(HttpRequest request) {
@@ -118,9 +103,24 @@ public class JudgeClientService {
     private Map<String, Object> toJudgeTestCase(TestCase testCase) {
         return Map.of(
                 "case_id", String.valueOf(testCase.getId()),
+                "case_no", testCase.getCaseNo() != null ? testCase.getCaseNo() : 0,
                 "input", testCase.getInputData() != null ? testCase.getInputData() : "",
                 "expected_output", testCase.getExpectedOutput() != null ? testCase.getExpectedOutput() : "",
                 "score", testCase.getScore() != null ? testCase.getScore() : 0);
+    }
+
+    private Map<String, Object> toJudgeLimit(Problem problem, ProblemLanguageLimit languageLimit) {
+        int timeLimitMs = languageLimit != null && languageLimit.getTimeLimitMs() != null
+                ? languageLimit.getTimeLimitMs()
+                : problem.getDefaultTimeLimitMs();
+        int memoryLimitMb = languageLimit != null && languageLimit.getMemoryLimitMb() != null
+                ? languageLimit.getMemoryLimitMb()
+                : problem.getDefaultMemoryLimitMb();
+
+        return Map.of(
+                "time_limit_ms", timeLimitMs,
+                "memory_limit_kb", memoryLimitMb * 1024,
+                "output_limit_kb", 1024);
     }
 
     private String normalizeLanguage(String languageCode) {
@@ -147,12 +147,4 @@ public class JudgeClientService {
         return URI.create(base + path);
     }
 
-    private void sleepPollInterval() {
-        try {
-            Thread.sleep(judgeProperties.getPollIntervalMs());
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new BusinessException(ResultCode.INTERNAL_ERROR, "Judge polling interrupted");
-        }
-    }
 }

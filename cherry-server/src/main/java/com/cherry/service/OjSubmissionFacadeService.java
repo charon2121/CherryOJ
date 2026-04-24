@@ -8,11 +8,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.cherry.common.api.ResultCode;
 import com.cherry.common.exception.BusinessException;
 import com.cherry.context.UserContext;
 import com.cherry.mapper.LanguageMapper;
+import com.cherry.mapper.ProblemLanguageLimitMapper;
 import com.cherry.mapper.ProblemMapper;
 import com.cherry.mapper.SubmissionMapper;
 import com.cherry.mapper.SubmissionTestCaseResultMapper;
@@ -20,12 +23,15 @@ import com.cherry.mapper.TestCaseMapper;
 import com.cherry.model.dto.judge.JudgeCompileResultDto;
 import com.cherry.model.dto.judge.JudgeResultDto;
 import com.cherry.model.dto.judge.JudgeRunResultDto;
+import com.cherry.model.dto.judge.JudgeWebhookRequest;
 import com.cherry.model.dto.submission.CreateSubmissionRequest;
 import com.cherry.model.dto.submission.CreateSubmissionResponse;
 import com.cherry.model.dto.submission.SubmissionCaseResultDto;
 import com.cherry.model.dto.submission.SubmissionDetailDto;
+import com.cherry.model.dto.submission.SubmissionEventDto;
 import com.cherry.model.entity.Language;
 import com.cherry.model.entity.Problem;
+import com.cherry.model.entity.ProblemLanguageLimit;
 import com.cherry.model.entity.Submission;
 import com.cherry.model.entity.SubmissionTestCaseResult;
 import com.cherry.model.entity.TestCase;
@@ -38,6 +44,7 @@ public class OjSubmissionFacadeService {
 
     private static final int PROBLEM_STATUS_PUBLISHED = 1;
     private static final int SUBMISSION_STATUS_PENDING = 1;
+    private static final int SUBMISSION_STATUS_JUDGING = 2;
     private static final int SUBMISSION_STATUS_FINISHED = 3;
     private static final int SUBMISSION_STATUS_SYSTEM_ERROR = 4;
     private static final int ACTIVE_TEST_CASE_STATUS = 1;
@@ -46,11 +53,12 @@ public class OjSubmissionFacadeService {
     private final SubmissionTestCaseResultMapper submissionTestCaseResultMapper;
     private final ProblemMapper problemMapper;
     private final LanguageMapper languageMapper;
+    private final ProblemLanguageLimitMapper problemLanguageLimitMapper;
     private final TestCaseMapper testCaseMapper;
     private final UserContext userContext;
     private final JudgeClientService judgeClientService;
+    private final SubmissionEventService submissionEventService;
 
-    @Transactional
     public CreateSubmissionResponse createSubmission(CreateSubmissionRequest request) {
         Long userId = userContext.getUserId();
         if (userId == null) {
@@ -76,6 +84,8 @@ public class OjSubmissionFacadeService {
         if (language == null) {
             throw new BusinessException(ResultCode.BAD_REQUEST, "不支持的语言: " + request.getLanguageCode());
         }
+        ProblemLanguageLimit languageLimit = resolveLanguageLimit(problem, language);
+        ensureJudgeSupported(language.getCode());
 
         Submission submission = new Submission();
         submission.setUserId(userId);
@@ -96,12 +106,10 @@ public class OjSubmissionFacadeService {
         if (activeTestCases.isEmpty()) {
             finalizeWithoutJudgeService(submission, null);
         } else {
-            submission.setStatus(2);
+            submission.setStatus(SUBMISSION_STATUS_JUDGING);
             submissionMapper.updateById(submission);
             try {
-                JudgeResultDto judgeResult =
-                        judgeClientService.judge(submission, problem, language.getCode(), activeTestCases);
-                finalizeWithJudgeResult(submission, activeTestCases, judgeResult);
+                judgeClientService.dispatch(submission, problem, languageLimit, language.getCode(), activeTestCases);
             } catch (RuntimeException ex) {
                 finalizeWithoutJudgeService(submission, ex.getMessage());
             }
@@ -113,6 +121,48 @@ public class OjSubmissionFacadeService {
                 .status(toSubmissionStatus(finalized.getStatus()))
                 .resultCode(finalized.getResultCode())
                 .build();
+    }
+
+    @Transactional
+    public SubmissionEventDto applyJudgeWebhook(JudgeWebhookRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("请求体不能为空");
+        }
+        Long submissionId = parseSubmissionId(request.getSubmissionId());
+        String expectedTaskId = judgeClientService.taskIdFor(submissionId);
+        if (!expectedTaskId.equals(request.getTaskId())) {
+            throw new BusinessException(ResultCode.CONFLICT, "task_id 与 submission_id 不匹配");
+        }
+
+        Submission submission = submissionMapper.selectById(submissionId);
+        if (submission == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "提交记录不存在");
+        }
+        if (SUBMISSION_STATUS_FINISHED == submission.getStatus()
+                || SUBMISSION_STATUS_SYSTEM_ERROR == submission.getStatus()) {
+            return toSubmissionEvent(submissionMapper.selectById(submissionId));
+        }
+
+        submissionTestCaseResultMapper.deleteBySubmissionId(submissionId);
+        if ("finished".equalsIgnoreCase(request.getStatus())) {
+            if (request.getResult() == null) {
+                finalizeWithoutJudgeService(submission, "Judge webhook returned empty result");
+            } else {
+                List<TestCase> activeTestCases =
+                        testCaseMapper.selectActiveByProblemId(submission.getProblemId(), ACTIVE_TEST_CASE_STATUS);
+                finalizeWithJudgeResult(submission, activeTestCases, request.getResult());
+            }
+        } else if ("failed".equalsIgnoreCase(request.getStatus())) {
+            String message = request.getError() != null ? request.getError().getMessage() : "Judge task failed";
+            finalizeWithoutJudgeService(submission, message);
+        } else {
+            throw new BusinessException(ResultCode.BAD_REQUEST, "不支持的 webhook status: " + request.getStatus());
+        }
+
+        Submission finalized = submissionMapper.selectById(submissionId);
+        SubmissionEventDto event = toSubmissionEvent(finalized);
+        publishAfterCommit(event);
+        return event;
     }
 
     @Transactional(readOnly = true)
@@ -154,6 +204,19 @@ public class OjSubmissionFacadeService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public SubmissionEventDto getSubmissionEvent(long submissionId) {
+        Long userId = userContext.getUserId();
+        if (userId == null) {
+            throw new BusinessException(ResultCode.UNAUTHORIZED);
+        }
+        Submission submission = submissionMapper.selectById(submissionId);
+        if (submission == null || !userId.equals(submission.getUserId())) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "提交记录不存在");
+        }
+        return toSubmissionEvent(submission);
+    }
+
     private void finalizeWithoutJudgeService(Submission submission, String overrideMessage) {
         List<TestCase> activeTestCases =
                 testCaseMapper.selectActiveByProblemId(submission.getProblemId(), ACTIVE_TEST_CASE_STATUS);
@@ -181,7 +244,7 @@ public class OjSubmissionFacadeService {
             submissionTestCaseResultMapper.insert(result);
         }
 
-        submission.setStatus(SUBMISSION_STATUS_FINISHED);
+        submission.setStatus(SUBMISSION_STATUS_SYSTEM_ERROR);
         submission.setResultCode("SYSTEM_ERROR");
         submission.setScore(0);
         submission.setTimeUsedMs(null);
@@ -258,7 +321,7 @@ public class OjSubmissionFacadeService {
         }
         return switch (status) {
             case SUBMISSION_STATUS_PENDING -> "PENDING";
-            case 2 -> "JUDGING";
+            case SUBMISSION_STATUS_JUDGING -> "JUDGING";
             case SUBMISSION_STATUS_FINISHED -> "FINISHED";
             case SUBMISSION_STATUS_SYSTEM_ERROR -> "SYSTEM_ERROR";
             default -> "UNKNOWN";
@@ -304,5 +367,73 @@ public class OjSubmissionFacadeService {
             return 100;
         }
         return (int) Math.floor((passed * 100.0) / total);
+    }
+
+    private ProblemLanguageLimit resolveLanguageLimit(Problem problem, Language language) {
+        List<ProblemLanguageLimit> limits = problemLanguageLimitMapper.selectByProblemId(problem.getId());
+        if (limits.isEmpty()) {
+            return null;
+        }
+        return limits.stream()
+                .filter(limit -> language.getId().equals(limit.getLanguageId()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ResultCode.BAD_REQUEST,
+                        "该题不支持语言: " + language.getCode()));
+    }
+
+    private void ensureJudgeSupported(String languageCode) {
+        String normalized = languageCode == null ? "" : languageCode.trim().toLowerCase();
+        if (normalized.startsWith("cpp") || normalized.startsWith("c++") || normalized.startsWith("python")) {
+            return;
+        }
+        throw new BusinessException(ResultCode.BAD_REQUEST, "Judge service does not support language: " + languageCode);
+    }
+
+    private Long parseSubmissionId(String submissionId) {
+        if (submissionId == null || submissionId.isBlank()) {
+            throw new BusinessException(ResultCode.BAD_REQUEST, "submission_id 不能为空");
+        }
+        try {
+            return Long.valueOf(submissionId);
+        } catch (NumberFormatException ex) {
+            throw new BusinessException(ResultCode.BAD_REQUEST, "submission_id 格式不正确");
+        }
+    }
+
+    private SubmissionEventDto toSubmissionEvent(Submission submission) {
+        List<SubmissionTestCaseResult> caseResults =
+                submissionTestCaseResultMapper.selectBySubmissionId(submission.getId());
+        int passedCases = (int) caseResults.stream()
+                .filter(result -> "AC".equalsIgnoreCase(result.getResultCode()))
+                .count();
+        return SubmissionEventDto.builder()
+                .submissionId(submission.getId())
+                .status(toSubmissionStatus(submission.getStatus()))
+                .resultCode(submission.getResultCode())
+                .passedCases(passedCases)
+                .totalCases(caseResults.size())
+                .message(extractMessage(caseResults))
+                .build();
+    }
+
+    private void publishAfterCommit(SubmissionEventDto event) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            publishEvent(event);
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                publishEvent(event);
+            }
+        });
+    }
+
+    private void publishEvent(SubmissionEventDto event) {
+        if ("SYSTEM_ERROR".equals(event.getStatus())) {
+            submissionEventService.publishError(event);
+            return;
+        }
+        submissionEventService.publishUpdated(event);
     }
 }

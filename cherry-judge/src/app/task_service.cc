@@ -5,9 +5,13 @@
 namespace cherry::app {
 
 TaskService::TaskService(queue::TaskQueue* task_queue,
-                         const JudgePipeline* judge_pipeline)
-    : task_queue_(task_queue), judge_pipeline_(judge_pipeline) {
-    if (task_queue_ == nullptr || judge_pipeline_ == nullptr) {
+                         const JudgePipeline* judge_pipeline,
+                         const WebhookClient* webhook_client)
+    : task_queue_(task_queue),
+      judge_pipeline_(judge_pipeline),
+      webhook_client_(webhook_client) {
+    if (task_queue_ == nullptr || judge_pipeline_ == nullptr ||
+        webhook_client_ == nullptr) {
         throw std::invalid_argument("TaskService dependencies cannot be null");
     }
 }
@@ -42,7 +46,16 @@ void TaskService::Loop() {
             }
             continue;
         }
-        judge_pipeline_->Execute(task.value());
+        try {
+            auto result = judge_pipeline_->Execute(task.value());
+            webhook_client_->NotifyFinished(task.value(), result);
+        } catch (const std::exception& ex) {
+            try {
+                webhook_client_->NotifyFailed(task.value(), ex.what());
+            } catch (const std::exception&) {
+                // Keep the worker alive even when the backend is temporarily unreachable.
+            }
+        }
     }
 }
 

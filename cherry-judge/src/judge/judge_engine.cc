@@ -45,6 +45,7 @@ domain::JudgeResult JudgeEngine::Aggregate(
         return result;
     }
 
+    result.final_verdict = domain::Verdict::kAccepted;
     for (const auto& run_result : run_results) {
         result.total_time_ms += run_result.time_ms;
         result.peak_memory_kb =
@@ -55,9 +56,8 @@ domain::JudgeResult JudgeEngine::Aggregate(
             continue;
         }
 
-        if (result.final_verdict == domain::Verdict::kAccepted) {
-            result.final_verdict = run_result.verdict;
-        }
+        result.final_verdict = run_result.verdict;
+        break;
     }
 
     if (run_results.empty()) {

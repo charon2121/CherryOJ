@@ -37,5 +37,8 @@ app:
     enabled: ${APP_JUDGE_ENABLED:true}
     base-url: ${APP_JUDGE_BASE_URL:http://127.0.0.1:6060}
     connect-timeout-ms: ${APP_JUDGE_CONNECT_TIMEOUT_MS:2000}
+    dispatch-timeout-ms: ${APP_JUDGE_DISPATCH_TIMEOUT_MS:5000}
     poll-interval-ms: ${APP_JUDGE_POLL_INTERVAL_MS:200}
     max-wait-ms: ${APP_JUDGE_MAX_WAIT_MS:15000}
+    webhook-token: ${APP_JUDGE_WEBHOOK_TOKEN:dev-judge-token}
+    webhook-url: ${APP_JUDGE_WEBHOOK_URL:http://127.0.0.1:8080/api/internal/judge/webhook}

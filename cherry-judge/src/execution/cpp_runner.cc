@@ -16,6 +16,7 @@ domain::RunResult CppRunner::Run(
     domain::RunResult result;
 
     result.case_id = test_case.case_id;
+    result.case_no = test_case.case_no;
 
     if (compile_result == nullptr ||
         compile_result->executable_path.empty()) {  // compiler error
@@ -32,7 +33,9 @@ domain::RunResult CppRunner::Run(
 
     std::vector<std::string> argv = {compile_result->executable_path};
 
-    auto process_result = process_executor_.Run(argv, test_case.input, run_timeout_ms_);
+    const int64_t timeout_ms =
+        task.limit.time_limit_ms > 0 ? task.limit.time_limit_ms : run_timeout_ms_;
+    auto process_result = process_executor_.Run(argv, test_case.input, timeout_ms);
 
     result.exit_code = process_result.exit_code;
     result.signal = process_result.term_signal;

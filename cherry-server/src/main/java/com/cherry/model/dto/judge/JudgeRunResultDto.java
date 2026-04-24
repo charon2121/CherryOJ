@@ -10,6 +10,9 @@ public class JudgeRunResultDto {
     @JsonProperty("case_id")
     private String caseId;
 
+    @JsonProperty("case_no")
+    private Integer caseNo;
+
     private String verdict;
 
     @JsonProperty("exit_code")

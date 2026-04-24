@@ -87,3 +87,12 @@ export interface SubmissionDetailResponse {
   createdAt?: string | null;
   testCaseResults: SubmissionCaseResultResponse[];
 }
+
+export interface SubmissionEventResponse {
+  submissionId: number;
+  status: string;
+  resultCode?: string | null;
+  passedCases?: number | null;
+  totalCases?: number | null;
+  message?: string | null;
+}

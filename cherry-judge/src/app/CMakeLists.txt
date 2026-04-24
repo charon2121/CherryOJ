@@ -4,6 +4,7 @@ add_library(cherry_app
     judge_pipeline.cc
     submission_service.cc
     task_service.cc
+    webhook_client.cc
 )
 
 target_include_directories(cherry_app
@@ -16,5 +17,6 @@ target_link_libraries(cherry_app
     cherry_execution
     cherry_queue
     cherry_store
+    thirdparty_httplib
     Threads::Threads
 )

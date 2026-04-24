@@ -11,6 +11,7 @@ namespace cherry::domain {
 
 struct RunResult {
     std::string case_id;
+    int case_no = 0;
     Verdict verdict = Verdict::kPending;
     int exit_code = -1;
     int signal = 0;
@@ -22,6 +23,7 @@ struct RunResult {
 
 inline void to_json(nlohmann::json& json, const RunResult& result) {
     json = nlohmann::json{{"case_id", result.case_id},
+                          {"case_no", result.case_no},
                           {"verdict", result.verdict},
                           {"exit_code", result.exit_code},
                           {"signal", result.signal},
@@ -33,6 +35,9 @@ inline void to_json(nlohmann::json& json, const RunResult& result) {
 
 inline void from_json(const nlohmann::json& json, RunResult& result) {
     json.at("case_id").get_to(result.case_id);
+    if (json.contains("case_no") && !json.at("case_no").is_null()) {
+        json.at("case_no").get_to(result.case_no);
+    }
     json.at("verdict").get_to(result.verdict);
     json.at("exit_code").get_to(result.exit_code);
     json.at("signal").get_to(result.signal);
